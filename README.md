@@ -1,4 +1,4 @@
-# Stingray Terraform Provider
+# Stingray Terraform Provider [![Build Status](https://secure.travis-ci.org/whitepages/terraform-provider-stingray.png)](http://travis-ci.org/whitepages/terraform-provider-stingray)
 
 The Stingray Terraform provider is used to interact with the Stingray
 load balancer.
