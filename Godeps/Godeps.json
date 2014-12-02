@@ -1,0 +1,81 @@
+{
+	"ImportPath": "github.com/whitepages/terraform-provider-stingray",
+	"GoVersion": "go1.3.3",
+	"Deps": [
+		{
+			"ImportPath": "github.com/hashicorp/hcl",
+			"Rev": "e51eabcdf801f663738fa12f4340fbad13062738"
+		},
+		{
+			"ImportPath": "github.com/hashicorp/terraform/config",
+			"Comment": "v0.3.1",
+			"Rev": "146d081b65aba3e0f183d6e4b26f3e794fabaebf"
+		},
+		{
+			"ImportPath": "github.com/hashicorp/terraform/depgraph",
+			"Comment": "v0.3.1",
+			"Rev": "146d081b65aba3e0f183d6e4b26f3e794fabaebf"
+		},
+		{
+			"ImportPath": "github.com/hashicorp/terraform/digraph",
+			"Comment": "v0.3.1",
+			"Rev": "146d081b65aba3e0f183d6e4b26f3e794fabaebf"
+		},
+		{
+			"ImportPath": "github.com/hashicorp/terraform/flatmap",
+			"Comment": "v0.3.1",
+			"Rev": "146d081b65aba3e0f183d6e4b26f3e794fabaebf"
+		},
+		{
+			"ImportPath": "github.com/hashicorp/terraform/helper/hashcode",
+			"Comment": "v0.3.1",
+			"Rev": "146d081b65aba3e0f183d6e4b26f3e794fabaebf"
+		},
+		{
+			"ImportPath": "github.com/hashicorp/terraform/helper/multierror",
+			"Comment": "v0.3.1",
+			"Rev": "146d081b65aba3e0f183d6e4b26f3e794fabaebf"
+		},
+		{
+			"ImportPath": "github.com/hashicorp/terraform/helper/schema",
+			"Comment": "v0.3.1",
+			"Rev": "146d081b65aba3e0f183d6e4b26f3e794fabaebf"
+		},
+		{
+			"ImportPath": "github.com/hashicorp/terraform/plugin",
+			"Comment": "v0.3.1",
+			"Rev": "146d081b65aba3e0f183d6e4b26f3e794fabaebf"
+		},
+		{
+			"ImportPath": "github.com/hashicorp/terraform/rpc",
+			"Comment": "v0.3.1",
+			"Rev": "146d081b65aba3e0f183d6e4b26f3e794fabaebf"
+		},
+		{
+			"ImportPath": "github.com/hashicorp/terraform/terraform",
+			"Comment": "v0.3.1",
+			"Rev": "146d081b65aba3e0f183d6e4b26f3e794fabaebf"
+		},
+		{
+			"ImportPath": "github.com/hashicorp/yamux",
+			"Rev": "9feabe6854fadca1abec9cd3bd2a613fe9a34000"
+		},
+		{
+			"ImportPath": "github.com/mitchellh/copystructure",
+			"Rev": "d8968bce41ab42f33aeb143afa95e331cb1ba886"
+		},
+		{
+			"ImportPath": "github.com/mitchellh/mapstructure",
+			"Rev": "740c764bc6149d3f1806231418adb9f52c11bcbf"
+		},
+		{
+			"ImportPath": "github.com/mitchellh/reflectwalk",
+			"Rev": "9989d7067f58812d814f5a837c5cbdd31799b694"
+		},
+		{
+			"ImportPath": "github.com/whitepages/go-stingray",
+			"Comment": "v1.0.0",
+			"Rev": "4be109440edb713dd1207adf080b6ea5a0e849aa"
+		}
+	]
+}
