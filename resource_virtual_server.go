@@ -108,6 +108,12 @@ func resourceVirtualServer() *schema.Resource {
 				Computed: true,
 			},
 
+			"log_server_connection_failures": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+
 			"note": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -220,6 +226,7 @@ func resourceVirtualServerRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("log_enabled", bool(*r.Log.Enabled))
 	d.Set("log_filename", string(*r.Log.Filename))
 	d.Set("log_format", string(*r.Log.Format))
+	d.Set("log_server_connection_failures", bool(*r.Log.ServerConnectionFailures))
 	d.Set("note", string(*r.Basic.Note))
 	d.Set("pool", string(*r.Basic.Pool))
 	d.Set("port", int(*r.Basic.Port))
@@ -277,6 +284,7 @@ func resourceVirtualServerSet(d *schema.ResourceData, meta interface{}) error {
 	setBool(&r.Log.Enabled, d, "log_enabled")
 	setString(&r.Log.Filename, d, "log_filename")
 	setString(&r.Log.Format, d, "log_format")
+	setBool(&r.Log.ServerConnectionFailures, d, "log_server_connection_failures")
 	setString(&r.Basic.Note, d, "note")
 	setString(&r.Basic.Pool, d, "pool")
 	setInt(&r.Basic.Port, d, "port")
