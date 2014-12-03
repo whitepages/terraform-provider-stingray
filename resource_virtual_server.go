@@ -55,7 +55,7 @@ func resourceVirtualServer() *schema.Resource {
 			"gzip_enabled": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  true,
+				Computed: true,
 			},
 
 			"gzip_include_mime": &schema.Schema{
