@@ -90,11 +90,11 @@ func resourcePool() *schema.Resource {
 				Computed: true,
 			},
 
-      "tcp_nagle": &schema.Schema{
-        Type:     schema.TypeBool,
-        Optional: true,
-        Computed: true,
-      },
+			"tcp_nagle": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -133,7 +133,7 @@ func resourcePoolRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("nodes", nodesTableToNodes(*r.Basic.NodesTable))
 	d.Set("note", string(*r.Basic.Note))
 	d.Set("passive_monitoring", bool(*r.Basic.PassiveMonitoring))
-  d.Set("tcp_nagle", bool(*r.Basic.TcpNagle))
+	d.Set("tcp_nagle", bool(*r.Basic.TcpNagle))
 
 	return nil
 }
@@ -176,7 +176,7 @@ func resourcePoolSet(d *schema.ResourceData, meta interface{}) error {
 	setNodesTable(&r.Basic.NodesTable, d, "nodes")
 	setString(&r.Basic.Note, d, "note")
 	setBool(&r.Basic.PassiveMonitoring, d, "passive_monitoring")
-  setBool(&r.Basic.TcpNagle, d, "tcp_nagle")
+	setBool(&r.Basic.TcpNagle, d, "tcp_nagle")
 
 	_, err := c.Set(r)
 	if err != nil {
