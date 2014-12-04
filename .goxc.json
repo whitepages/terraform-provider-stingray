@@ -1,6 +1,5 @@
 {
 	"BuildConstraints": "!plan9",
 	"PackageVersion": "1.0.0",
-	"PrereleaseInfo": "rc4",
 	"ConfigVersion": "0.9"
 }
