@@ -1,6 +1,7 @@
 package stingray
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -216,4 +217,15 @@ func Int(v int) *int {
 // to store v and returns a pointer to it.
 func String(v string) *string {
 	return &v
+}
+
+// jsonMarshal un-escapes "\u0026" to "&", since the Stingray REST API
+// does not decode this escape sequence correctly. (It results in
+// "u0026".)
+func jsonMarshal(v interface{}) ([]byte, error) {
+	b, err := json.Marshal(v)
+
+	b = bytes.Replace(b, []byte("\\u0026"), []byte("&"), -1)
+
+	return b, err
 }

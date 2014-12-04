@@ -24,7 +24,7 @@ func (r *Rate) endpoint() string {
 }
 
 func (r *Rate) String() string {
-	s, _ := json.Marshal(r)
+	s, _ := jsonMarshal(r)
 	return string(s)
 }
 

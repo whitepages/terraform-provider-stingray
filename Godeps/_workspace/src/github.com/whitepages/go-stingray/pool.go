@@ -111,7 +111,7 @@ func (r *Pool) endpoint() string {
 }
 
 func (r *Pool) String() string {
-	s, _ := json.Marshal(r)
+	s, _ := jsonMarshal(r)
 	return string(s)
 }
 

@@ -69,7 +69,7 @@ func (r *Monitor) endpoint() string {
 }
 
 func (r *Monitor) String() string {
-	s, _ := json.Marshal(r)
+	s, _ := jsonMarshal(r)
 	return string(s)
 }
 

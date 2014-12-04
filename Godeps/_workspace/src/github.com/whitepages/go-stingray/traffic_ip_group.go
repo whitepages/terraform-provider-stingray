@@ -39,7 +39,7 @@ func (r *TrafficIPGroup) endpoint() string {
 }
 
 func (r *TrafficIPGroup) String() string {
-	s, _ := json.Marshal(r)
+	s, _ := jsonMarshal(r)
 	return string(s)
 }
 

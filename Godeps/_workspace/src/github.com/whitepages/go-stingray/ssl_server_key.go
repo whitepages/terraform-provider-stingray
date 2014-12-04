@@ -25,7 +25,7 @@ func (r *SSLServerKey) endpoint() string {
 }
 
 func (r *SSLServerKey) String() string {
-	s, _ := json.Marshal(r)
+	s, _ := jsonMarshal(r)
 	return string(s)
 }
 

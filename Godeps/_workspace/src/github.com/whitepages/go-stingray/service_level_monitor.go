@@ -25,7 +25,7 @@ func (r *ServiceLevelMonitor) endpoint() string {
 }
 
 func (r *ServiceLevelMonitor) String() string {
-	s, _ := json.Marshal(r)
+	s, _ := jsonMarshal(r)
 	return string(s)
 }
 

@@ -199,7 +199,7 @@ func (r *VirtualServer) endpoint() string {
 }
 
 func (r *VirtualServer) String() string {
-	s, _ := json.Marshal(r)
+	s, _ := jsonMarshal(r)
 	return string(s)
 }
 
