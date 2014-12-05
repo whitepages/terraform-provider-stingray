@@ -174,6 +174,12 @@ func resourceVirtualServer() *schema.Resource {
 				Computed: true,
 			},
 
+			"syslog_format": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
 			"web_cache_enabled": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -237,6 +243,7 @@ func resourceVirtualServerRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("ssl_add_http_headers", bool(*r.SSL.AddHTTPHeaders))
 	d.Set("ssl_decrypt", bool(*r.Basic.SSLDecrypt))
 	d.Set("ssl_server_cert_default", string(*r.SSL.ServerCertDefault))
+	d.Set("syslog_format", string(*r.Syslog.Format))
 	d.Set("web_cache_enabled", bool(*r.WebCache.Enabled))
 	d.Set("web_cache_max_time", int(*r.WebCache.MaxTime))
 
@@ -295,6 +302,7 @@ func resourceVirtualServerSet(d *schema.ResourceData, meta interface{}) error {
 	setBool(&r.SSL.AddHTTPHeaders, d, "ssl_add_http_headers")
 	setBool(&r.Basic.SSLDecrypt, d, "ssl_decrypt")
 	setString(&r.SSL.ServerCertDefault, d, "ssl_server_cert_default")
+	setString(&r.Syslog.Format, d, "syslog_format")
 	setBool(&r.WebCache.Enabled, d, "web_cache_enabled")
 	setInt(&r.WebCache.MaxTime, d, "web_cache_max_time")
 
