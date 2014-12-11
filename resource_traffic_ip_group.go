@@ -148,11 +148,8 @@ func resourceTrafficIPGroupDelete(d *schema.ResourceData, meta interface{}) erro
 	c := meta.(*stingray.Client)
 	r := stingray.NewTrafficIPGroup(d.Id())
 
-	resp, err := c.Delete(r)
-	// Deletes happen twice when a resource is recreated due to
-	// ForceNew, so treat a 404 as a success
-	// https://github.com/hashicorp/terraform/issues/542
-	if err != nil && resp.StatusCode != 404 {
+	_, err := c.Delete(r)
+	if err != nil {
 		return err
 	}
 
