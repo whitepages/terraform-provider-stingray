@@ -175,7 +175,7 @@ func (c *Context) Input(mode InputMode) error {
 			case config.VariableTypeString:
 				// Good!
 			default:
-				panic(fmt.Sprintf("Unknown variable type: %s", v.Type()))
+				panic(fmt.Sprintf("Unknown variable type: %#v", v.Type()))
 			}
 
 			var defaultString string
@@ -483,7 +483,7 @@ func (c *walkContext) Walk() error {
 	case walkValidate:
 		walkFn = c.validateWalkFn()
 	default:
-		panic(fmt.Sprintf("unknown operation: %s", c.Operation))
+		panic(fmt.Sprintf("unknown operation: %#v", c.Operation))
 	}
 
 	if err := g.Walk(walkFn); err != nil {
@@ -523,7 +523,7 @@ func (c *walkContext) Walk() error {
 		// On Apply, we prune so that we don't do outputs if we destroyed
 		mod.prune()
 	}
-	if len(mod.Resources) == 0 {
+	if len(mod.Resources) == 0 && len(conf.Resources) != 0 {
 		mod.Outputs = nil
 		return nil
 	}
@@ -550,7 +550,14 @@ func (c *walkContext) Walk() error {
 			}
 		}
 		if vraw != nil {
-			outputs[o.Name] = vraw.(string)
+			if list, ok := vraw.([]interface{}); ok {
+				vraw = list[0]
+			}
+			if s, ok := vraw.(string); ok {
+				outputs[o.Name] = s
+			} else {
+				return fmt.Errorf("Type of output '%s' is not a string: %#v", o.Name, vraw)
+			}
 		}
 	}
 
@@ -922,8 +929,33 @@ func (c *walkContext) planDestroyWalkFn() depgraph.WalkFunc {
 	walkFn = func(n *depgraph.Noun) error {
 		switch m := n.Meta.(type) {
 		case *GraphNodeModule:
+			// Set the destroy bool on the module
+			md := result.Diff.ModuleByPath(m.Path)
+			if md == nil {
+				md = result.Diff.AddModule(m.Path)
+			}
+			md.Destroy = true
+
 			// Build another walkContext for this module and walk it.
 			wc := c.Context.walkContext(c.Operation, m.Path)
+
+			// compute incoming vars
+			if m.Config != nil {
+				wc.Variables = make(map[string]string)
+
+				rc := NewResourceConfig(m.Config.RawConfig)
+				if err := rc.interpolate(c, nil); err != nil {
+					return err
+				}
+				for k, v := range rc.Config {
+					wc.Variables[k] = v.(string)
+				}
+				for k, _ := range rc.Raw {
+					if _, ok := wc.Variables[k]; !ok {
+						wc.Variables[k] = config.UnknownVariableValue
+					}
+				}
+			}
 
 			// Set the graph to specifically walk this subgraph
 			wc.graph = m.Graph
@@ -1042,7 +1074,9 @@ func (c *walkContext) validateWalkFn() depgraph.WalkFunc {
 			if rn.ExpandMode > ResourceExpandNone {
 				// Interpolate the count and verify it is non-negative
 				rc := NewResourceConfig(rn.Config.RawCount)
-				rc.interpolate(c, rn.Resource)
+				if err := rc.interpolate(c, rn.Resource); err != nil {
+					return err
+				}
 				if !rc.IsComputed(rn.Config.RawCount.Key) {
 					count, err := rn.Config.Count()
 					if err == nil {
@@ -1132,7 +1166,9 @@ func (c *walkContext) validateWalkFn() depgraph.WalkFunc {
 			for k, p := range sharedProvider.Providers {
 				// Merge the configurations to get what we use to configure with
 				rc := sharedProvider.MergeConfig(false, cs[k])
-				rc.interpolate(c, nil)
+				if err := rc.interpolate(c, nil); err != nil {
+					return err
+				}
 
 				log.Printf("[INFO] Validating provider: %s", k)
 				ws, es := p.Validate(rc)
@@ -1188,7 +1224,9 @@ func (c *walkContext) genericWalkFn(cb genericWalkFunc) depgraph.WalkFunc {
 				wc.Variables = make(map[string]string)
 
 				rc := NewResourceConfig(m.Config.RawConfig)
-				rc.interpolate(c, nil)
+				if err := rc.interpolate(c, nil); err != nil {
+					return err
+				}
 				for k, v := range rc.Config {
 					wc.Variables[k] = v.(string)
 				}
@@ -1215,7 +1253,9 @@ func (c *walkContext) genericWalkFn(cb genericWalkFunc) depgraph.WalkFunc {
 				// Interpolate our own configuration before merging
 				if sharedProvider.Config != nil {
 					rc := NewResourceConfig(sharedProvider.Config.RawConfig)
-					rc.interpolate(c, nil)
+					if err := rc.interpolate(c, nil); err != nil {
+						return err
+					}
 				}
 
 				// Merge the configurations to get what we use to configure
@@ -1286,7 +1326,9 @@ func (c *walkContext) genericWalkResource(
 	rn *GraphNodeResource, fn depgraph.WalkFunc) error {
 	// Interpolate the count
 	rc := NewResourceConfig(rn.Config.RawCount)
-	rc.interpolate(c, rn.Resource)
+	if err := rc.interpolate(c, rn.Resource); err != nil {
+		return err
+	}
 
 	// If we're validating, then we set the count to 1 if it is computed
 	if c.Operation == walkValidate {
@@ -1608,21 +1650,28 @@ func (c *walkContext) computeResourceVariable(
 	c.Context.sl.RLock()
 	defer c.Context.sl.RUnlock()
 
-	// Get the relevant module
-	module := c.Context.state.ModuleByPath(c.Path)
-
-	var r *ResourceState
-	if module != nil {
-		var ok bool
-		r, ok = module.Resources[id]
-		if !ok && v.Multi && v.Index == 0 {
-			r, ok = module.Resources[v.ResourceId()]
-		}
-		if !ok {
-			r = nil
-		}
+	// Get the information about this resource variable, and verify
+	// that it exists and such.
+	module, _, err := c.resourceVariableInfo(v)
+	if err != nil {
+		return "", err
 	}
 
+	// If we have no module in the state yet or count, return empty
+	if module == nil || len(module.Resources) == 0 {
+		return "", nil
+	}
+
+	// Get the resource out from the state. We know the state exists
+	// at this point and if there is a state, we expect there to be a
+	// resource with the given name.
+	r, ok := module.Resources[id]
+	if !ok && v.Multi && v.Index == 0 {
+		r, ok = module.Resources[v.ResourceId()]
+	}
+	if !ok {
+		r = nil
+	}
 	if r == nil {
 		return "", fmt.Errorf(
 			"Resource '%s' not found for variable '%s'",
@@ -1638,13 +1687,31 @@ func (c *walkContext) computeResourceVariable(
 		return attr, nil
 	}
 
+	// At apply time, we can't do the "maybe has it" check below
+	// that we need for plans since parent elements might be computed.
+	// Therefore, it is an error and we're missing the key.
+	//
+	// TODO: test by creating a state and configuration that is referencing
+	// a non-existent variable "foo.bar" where the state only has "foo"
+	// and verify plan works, but apply doesn't.
+	if c.Operation == walkApply {
+		goto MISSING
+	}
+
 	// We didn't find the exact field, so lets separate the dots
 	// and see if anything along the way is a computed set. i.e. if
 	// we have "foo.0.bar" as the field, check to see if "foo" is
 	// a computed list. If so, then the whole thing is computed.
 	if parts := strings.Split(v.Field, "."); len(parts) > 1 {
 		for i := 1; i < len(parts); i++ {
+			// Lists and sets make this
 			key := fmt.Sprintf("%s.#", strings.Join(parts[:i], "."))
+			if attr, ok := r.Primary.Attributes[key]; ok {
+				return attr, nil
+			}
+
+			// Maps make this
+			key = fmt.Sprintf("%s", strings.Join(parts[:i], "."))
 			if attr, ok := r.Primary.Attributes[key]; ok {
 				return attr, nil
 			}
@@ -1665,26 +1732,14 @@ func (c *walkContext) computeResourceMultiVariable(
 	c.Context.sl.RLock()
 	defer c.Context.sl.RUnlock()
 
-	// Get the resource from the configuration so we can know how
-	// many of the resource there is.
-	var cr *config.Resource
-	for _, r := range c.Context.module.Config().Resources {
-		if r.Id() == v.ResourceId() {
-			cr = r
-			break
-		}
-	}
-	if cr == nil {
-		return "", fmt.Errorf(
-			"Resource '%s' not found for variable '%s'",
-			v.ResourceId(),
-			v.FullKey())
+	// Get the information about this resource variable, and verify
+	// that it exists and such.
+	module, cr, err := c.resourceVariableInfo(v)
+	if err != nil {
+		return "", err
 	}
 
-	// Get the relevant module
-	// TODO: Not use only root module
-	module := c.Context.state.RootModule()
-
+	// Get the count so we know how many to iterate over
 	count, err := cr.Count()
 	if err != nil {
 		return "", fmt.Errorf(
@@ -1693,8 +1748,8 @@ func (c *walkContext) computeResourceMultiVariable(
 			err)
 	}
 
-	// If we have no count, return empty
-	if count == 0 {
+	// If we have no module in the state yet or count, return empty
+	if module == nil || len(module.Resources) == 0 || count == 0 {
 		return "", nil
 	}
 
@@ -1735,6 +1790,40 @@ func (c *walkContext) computeResourceMultiVariable(
 	}
 
 	return strings.Join(values, config.InterpSplitDelim), nil
+}
+
+func (c *walkContext) resourceVariableInfo(
+	v *config.ResourceVariable) (*ModuleState, *config.Resource, error) {
+	// Get the module tree that contains our current path. This is
+	// either the current module (path is empty) or a child.
+	var modTree *module.Tree
+	childPath := c.Path[1:len(c.Path)]
+	if len(childPath) == 0 {
+		modTree = c.Context.module
+	} else {
+		modTree = c.Context.module.Child(childPath)
+	}
+
+	// Get the resource from the configuration so we can verify
+	// that the resource is in the configuration and so we can access
+	// the configuration if we need to.
+	var cr *config.Resource
+	for _, r := range modTree.Config().Resources {
+		if r.Id() == v.ResourceId() {
+			cr = r
+			break
+		}
+	}
+	if cr == nil {
+		return nil, nil, fmt.Errorf(
+			"Resource '%s' not found for variable '%s'",
+			v.ResourceId(),
+			v.FullKey())
+	}
+
+	// Get the relevant module
+	module := c.Context.state.ModuleByPath(c.Path)
+	return module, cr, nil
 }
 
 type walkInputMeta struct {
