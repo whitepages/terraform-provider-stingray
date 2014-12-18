@@ -52,6 +52,12 @@ func resourcePool() *schema.Resource {
 				Computed: true,
 			},
 
+			"load_balancing_algorithm": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
 			"load_balancing_priority_enabled": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -128,6 +134,7 @@ func resourcePoolRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("connection_max_queue_size", int(*r.Connection.MaxQueueSize))
 	d.Set("connection_max_reply_time", int(*r.Connection.MaxReplyTime))
 	d.Set("connection_queue_timeout", int(*r.Connection.QueueTimeout))
+	d.Set("load_balancing_algorithm", string(*r.LoadBalancing.Algorithm))
 	d.Set("load_balancing_priority_enabled", bool(*r.LoadBalancing.PriorityEnabled))
 	d.Set("monitors", []string(*r.Basic.Monitors))
 	d.Set("nodes", nodesTableToNodes(*r.Basic.NodesTable))
@@ -168,6 +175,7 @@ func resourcePoolSet(d *schema.ResourceData, meta interface{}) error {
 	setInt(&r.Connection.MaxQueueSize, d, "connection_max_queue_size")
 	setInt(&r.Connection.MaxReplyTime, d, "connection_max_reply_time")
 	setInt(&r.Connection.QueueTimeout, d, "connection_queue_timeout")
+	setString(&r.LoadBalancing.Algorithm, d, "load_balancing_algorithm")
 	setBool(&r.LoadBalancing.PriorityEnabled, d, "load_balancing_priority_enabled")
 	setStringSet(&r.Basic.Monitors, d, "monitors")
 	setNodesTable(&r.Basic.NodesTable, d, "nodes")
