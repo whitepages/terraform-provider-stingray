@@ -20,6 +20,10 @@ provider "stingray" {
 * `password` - The password for authenticating against the API
 * `verify_ssl` - Perform SSL verification, default is true
 
+The provider can also be configured through the environmental
+variables `STINGRAY_URL`, `STINGRAY_USERNAME`, `STINGRAY_PASSWORD`,
+and `STINGRAY_VERIFY_SSL`.
+
 ## Supported Resources
 
 See the `resource_*.go` files for available resources and the
