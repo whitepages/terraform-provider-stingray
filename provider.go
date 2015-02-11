@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/sha1"
 	"encoding/hex"
+	"os"
 
 	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/helper/schema"
 	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/terraform"
@@ -14,24 +15,27 @@ func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"url": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				DefaultFunc: envDefaultFunc("STINGRAY_URL", nil),
 			},
 
 			"username": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				DefaultFunc: envDefaultFunc("STINGRAY_USERNAME", nil),
 			},
 
 			"password": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				DefaultFunc: envDefaultFunc("STINGRAY_PASSWORD", nil),
 			},
 
 			"verify_ssl": &schema.Schema{
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				DefaultFunc: envDefaultFunc("STINGRAY_VERIFY_SSL", true),
 			},
 		},
 
@@ -121,5 +125,15 @@ func setStringSet(target **[]string, d *schema.ResourceData, key string) {
 	if _, ok := d.GetOk(key); ok {
 		list := expandStringList(d.Get(key).(*schema.Set).List())
 		*target = &list
+	}
+}
+
+func envDefaultFunc(k string, alt interface{}) schema.SchemaDefaultFunc {
+	return func() (interface{}, error) {
+		if v := os.Getenv(k); v != "" {
+			return v, nil
+		}
+
+		return alt, nil
 	}
 }
