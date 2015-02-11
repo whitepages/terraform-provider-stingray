@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/sha1"
 	"encoding/hex"
+	"os"
 
 	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/helper/schema"
 	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/terraform"
@@ -121,5 +122,15 @@ func setStringSet(target **[]string, d *schema.ResourceData, key string) {
 	if _, ok := d.GetOk(key); ok {
 		list := expandStringList(d.Get(key).(*schema.Set).List())
 		*target = &list
+	}
+}
+
+func envDefaultFunc(k string, alt interface{}) schema.SchemaDefaultFunc {
+	return func() (interface{}, error) {
+		if v := os.Getenv(k); v != "" {
+			return v, nil
+		}
+
+		return alt, nil
 	}
 }
