@@ -15,24 +15,27 @@ func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"url": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				DefaultFunc: envDefaultFunc("STINGRAY_URL", nil),
 			},
 
 			"username": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				DefaultFunc: envDefaultFunc("STINGRAY_USERNAME", nil),
 			},
 
 			"password": &schema.Schema{
-				Type:     schema.TypeString,
-				Required: true,
+				Type:        schema.TypeString,
+				Required:    true,
+				DefaultFunc: envDefaultFunc("STINGRAY_PASSWORD", nil),
 			},
 
 			"verify_ssl": &schema.Schema{
-				Type:     schema.TypeBool,
-				Optional: true,
-				Default:  true,
+				Type:        schema.TypeBool,
+				Optional:    true,
+				DefaultFunc: envDefaultFunc("STINGRAY_VERIFY_SSL", true),
 			},
 		},
 
