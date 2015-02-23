@@ -40,7 +40,7 @@ func resourceActionProgramCreate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceActionProgramRead(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 
 	r, resp, err := c.GetActionProgram(d.Get("name").(string))
 	if err != nil {
@@ -69,7 +69,7 @@ func resourceActionProgramUpdate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceActionProgramDelete(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 	r := stingray.NewActionProgram(d.Id())
 
 	_, err := c.Delete(r)
@@ -81,7 +81,7 @@ func resourceActionProgramDelete(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceActionProgramSet(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 	r := stingray.NewActionProgram(d.Get("name").(string))
 
 	r.Content = []byte(d.Get("content").(string))

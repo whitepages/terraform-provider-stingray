@@ -40,7 +40,7 @@ func resourceExtraFileCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceExtraFileRead(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 
 	r, resp, err := c.GetExtraFile(d.Get("name").(string))
 	if err != nil {
@@ -69,7 +69,7 @@ func resourceExtraFileUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceExtraFileDelete(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 	r := stingray.NewExtraFile(d.Id())
 
 	_, err := c.Delete(r)
@@ -81,7 +81,7 @@ func resourceExtraFileDelete(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceExtraFileSet(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 	r := stingray.NewExtraFile(d.Get("name").(string))
 
 	r.Content = []byte(d.Get("content").(string))

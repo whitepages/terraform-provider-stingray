@@ -58,7 +58,7 @@ func resourceSSLServerKeyCreate(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceSSLServerKeyRead(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 
 	r, resp, err := c.GetSSLServerKey(d.Get("name").(string))
 	if err != nil {
@@ -90,7 +90,7 @@ func resourceSSLServerKeyUpdate(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceSSLServerKeyDelete(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 	r := stingray.NewSSLServerKey(d.Id())
 
 	_, err := c.Delete(r)
@@ -102,7 +102,7 @@ func resourceSSLServerKeyDelete(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceSSLServerKeySet(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 	r := stingray.NewSSLServerKey(d.Get("name").(string))
 
 	setString(&r.Basic.Note, d, "note")

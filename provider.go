@@ -59,6 +59,10 @@ func Provider() terraform.ResourceProvider {
 	}
 }
 
+type providerConfig struct {
+	client *stingray.Client
+}
+
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	config := Config{
 		URL:       d.Get("url").(string),
@@ -66,8 +70,12 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		Password:  d.Get("password").(string),
 		VerifySSL: d.Get("verify_ssl").(bool),
 	}
+	client, err := config.Client()
+	if err != nil {
+		return nil, err
+	}
 
-	return config.Client()
+	return &providerConfig{client: client}, nil
 }
 
 // Takes the result of flatmap.Expand for an array of strings

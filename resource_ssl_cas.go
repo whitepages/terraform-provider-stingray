@@ -40,7 +40,7 @@ func resourceSSLCAsCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceSSLCAsRead(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 
 	r, resp, err := c.GetSSLCAs(d.Get("name").(string))
 	if err != nil {
@@ -69,7 +69,7 @@ func resourceSSLCAsUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceSSLCAsDelete(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 	r := stingray.NewSSLCAs(d.Id())
 
 	_, err := c.Delete(r)
@@ -81,7 +81,7 @@ func resourceSSLCAsDelete(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceSSLCAsSet(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 	r := stingray.NewSSLCAs(d.Get("name").(string))
 
 	r.Content = []byte(d.Get("content").(string))

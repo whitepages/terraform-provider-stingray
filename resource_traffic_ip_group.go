@@ -107,7 +107,7 @@ func resourceTrafficIPGroupCreate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceTrafficIPGroupRead(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 
 	r, resp, err := c.GetTrafficIPGroup(d.Get("name").(string))
 	if err != nil {
@@ -145,7 +145,7 @@ func resourceTrafficIPGroupUpdate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceTrafficIPGroupDelete(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 	r := stingray.NewTrafficIPGroup(d.Id())
 
 	_, err := c.Delete(r)
@@ -157,7 +157,7 @@ func resourceTrafficIPGroupDelete(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceTrafficIPGroupSet(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 	r := stingray.NewTrafficIPGroup(d.Get("name").(string))
 
 	setBool(&r.Basic.Enabled, d, "enabled")

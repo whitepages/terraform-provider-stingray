@@ -40,7 +40,7 @@ func resourceMonitorScriptCreate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceMonitorScriptRead(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 
 	r, resp, err := c.GetMonitorScript(d.Get("name").(string))
 	if err != nil {
@@ -69,7 +69,7 @@ func resourceMonitorScriptUpdate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceMonitorScriptDelete(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 	r := stingray.NewMonitorScript(d.Id())
 
 	_, err := c.Delete(r)
@@ -81,7 +81,7 @@ func resourceMonitorScriptDelete(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceMonitorScriptSet(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 	r := stingray.NewMonitorScript(d.Get("name").(string))
 
 	r.Content = []byte(d.Get("content").(string))
