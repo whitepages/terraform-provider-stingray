@@ -1,3 +1,7 @@
+## 1.4.0
+
+* Add valid_networks option to provider
+
 ## 1.3.0
 
 * Support provider configuration via environment variables
