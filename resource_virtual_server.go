@@ -205,7 +205,7 @@ func resourceVirtualServerCreate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceVirtualServerRead(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 
 	r, resp, err := c.GetVirtualServer(d.Get("name").(string))
 	if err != nil {
@@ -260,7 +260,7 @@ func resourceVirtualServerUpdate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceVirtualServerDelete(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 	r := stingray.NewVirtualServer(d.Id())
 
 	_, err := c.Delete(r)
@@ -272,7 +272,7 @@ func resourceVirtualServerDelete(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceVirtualServerSet(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 	r := stingray.NewVirtualServer(d.Get("name").(string))
 
 	setString(&r.ConnectionErrors.ErrorFile, d, "connection_errors_error_file")

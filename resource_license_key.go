@@ -40,7 +40,7 @@ func resourceLicenseKeyCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceLicenseKeyRead(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 
 	r, resp, err := c.GetLicenseKey(d.Get("name").(string))
 	if err != nil {
@@ -69,7 +69,7 @@ func resourceLicenseKeyUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceLicenseKeyDelete(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 	r := stingray.NewLicenseKey(d.Id())
 
 	_, err := c.Delete(r)
@@ -81,7 +81,7 @@ func resourceLicenseKeyDelete(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceLicenseKeySet(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 	r := stingray.NewLicenseKey(d.Get("name").(string))
 
 	r.Content = []byte(d.Get("content").(string))

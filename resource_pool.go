@@ -115,7 +115,7 @@ func resourcePoolCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourcePoolRead(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 
 	r, resp, err := c.GetPool(d.Get("name").(string))
 	if err != nil {
@@ -155,7 +155,7 @@ func resourcePoolUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourcePoolDelete(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 	r := stingray.NewPool(d.Id())
 
 	_, err := c.Delete(r)
@@ -167,7 +167,7 @@ func resourcePoolDelete(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourcePoolSet(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 	r := stingray.NewPool(d.Get("name").(string))
 
 	setInt(&r.Connection.MaxConnectTime, d, "connection_max_connect_time")

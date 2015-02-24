@@ -21,11 +21,13 @@ provider "stingray" {
 * `host` - The protocol, host name, and port for the Stingray REST API
 * `username` - The username for authenticating against the API
 * `password` - The password for authenticating against the API
+* `valid_networks` - A comma separated list of valid traffic IP
+  networks (in CIDR notation)
 * `verify_ssl` - Perform SSL verification, default is true
 
 The provider can also be configured through the environmental
 variables `STINGRAY_URL`, `STINGRAY_USERNAME`, `STINGRAY_PASSWORD`,
-and `STINGRAY_VERIFY_SSL`.
+`STINGRAY_VALID_NETWORKS`, and `STINGRAY_VERIFY_SSL`.
 
 ## Supported Resources
 

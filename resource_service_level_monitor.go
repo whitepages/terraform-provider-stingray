@@ -58,7 +58,7 @@ func resourceServiceLevelMonitorCreate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceServiceLevelMonitorRead(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 
 	r, resp, err := c.GetServiceLevelMonitor(d.Get("name").(string))
 	if err != nil {
@@ -90,7 +90,7 @@ func resourceServiceLevelMonitorUpdate(d *schema.ResourceData, meta interface{})
 }
 
 func resourceServiceLevelMonitorDelete(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 	r := stingray.NewServiceLevelMonitor(d.Id())
 
 	_, err := c.Delete(r)
@@ -102,7 +102,7 @@ func resourceServiceLevelMonitorDelete(d *schema.ResourceData, meta interface{})
 }
 
 func resourceServiceLevelMonitorSet(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 	r := stingray.NewServiceLevelMonitor(d.Get("name").(string))
 
 	setString(&r.Basic.Note, d, "note")

@@ -52,7 +52,7 @@ func resourceRateCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceRateRead(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 
 	r, resp, err := c.GetRate(d.Get("name").(string))
 	if err != nil {
@@ -83,7 +83,7 @@ func resourceRateUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceRateDelete(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 	r := stingray.NewRate(d.Id())
 
 	_, err := c.Delete(r)
@@ -95,7 +95,7 @@ func resourceRateDelete(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceRateSet(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 	r := stingray.NewRate(d.Get("name").(string))
 
 	setInt(&r.Basic.MaxRatePerMinute, d, "max_rate_per_minute")

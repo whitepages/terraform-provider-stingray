@@ -40,7 +40,7 @@ func resourceRuleCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceRuleRead(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 
 	r, resp, err := c.GetRule(d.Get("name").(string))
 	if err != nil {
@@ -69,7 +69,7 @@ func resourceRuleUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceRuleDelete(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 	r := stingray.NewRule(d.Id())
 
 	_, err := c.Delete(r)
@@ -81,7 +81,7 @@ func resourceRuleDelete(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceRuleSet(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 	r := stingray.NewRule(d.Get("name").(string))
 
 	r.Content = []byte(d.Get("content").(string))

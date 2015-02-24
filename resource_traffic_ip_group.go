@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net"
 
 	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/helper/schema"
@@ -107,7 +108,7 @@ func resourceTrafficIPGroupCreate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceTrafficIPGroupRead(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 
 	r, resp, err := c.GetTrafficIPGroup(d.Get("name").(string))
 	if err != nil {
@@ -145,7 +146,7 @@ func resourceTrafficIPGroupUpdate(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceTrafficIPGroupDelete(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 	r := stingray.NewTrafficIPGroup(d.Id())
 
 	_, err := c.Delete(r)
@@ -157,7 +158,7 @@ func resourceTrafficIPGroupDelete(d *schema.ResourceData, meta interface{}) erro
 }
 
 func resourceTrafficIPGroupSet(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 	r := stingray.NewTrafficIPGroup(d.Get("name").(string))
 
 	setBool(&r.Basic.Enabled, d, "enabled")
@@ -170,6 +171,17 @@ func resourceTrafficIPGroupSet(d *schema.ResourceData, meta interface{}) error {
 	setString(&r.Basic.Multicast, d, "multicast")
 	setString(&r.Basic.Note, d, "note")
 	setStringSet(&r.Basic.Slaves, d, "slaves")
+
+	ns := meta.(*providerConfig).validNetworks
+	for _, s := range *r.Basic.IPAddresses {
+		ip := net.ParseIP(s)
+		if ip == nil {
+			return fmt.Errorf("Invalid IP address: %s", s)
+		}
+		if !ns.Contains(ip) {
+			return fmt.Errorf("IP address %s is not in the valid networks", ip)
+		}
+	}
 
 	_, err := c.Set(r)
 	if err != nil {

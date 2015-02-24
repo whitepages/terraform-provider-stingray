@@ -4,6 +4,7 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"os"
+	"strings"
 
 	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/helper/schema"
 	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/terraform"
@@ -30,6 +31,12 @@ func Provider() terraform.ResourceProvider {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: envDefaultFunc("STINGRAY_PASSWORD", nil),
+			},
+
+			"valid_networks": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				DefaultFunc: envDefaultFunc("STINGRAY_VALID_NETWORKS", ""),
 			},
 
 			"verify_ssl": &schema.Schema{
@@ -59,6 +66,11 @@ func Provider() terraform.ResourceProvider {
 	}
 }
 
+type providerConfig struct {
+	client        *stingray.Client
+	validNetworks netList
+}
+
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	config := Config{
 		URL:       d.Get("url").(string),
@@ -66,8 +78,23 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		Password:  d.Get("password").(string),
 		VerifySSL: d.Get("verify_ssl").(bool),
 	}
+	client, err := config.Client()
+	if err != nil {
+		return nil, err
+	}
 
-	return config.Client()
+	validNetworks := d.Get("valid_networks").(string)
+	ns := netList{}
+
+	if len(validNetworks) > 0 {
+		cidrList := strings.Split(validNetworks, ",")
+		ns, err = parseCIDRList(cidrList)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &providerConfig{client: client, validNetworks: ns}, nil
 }
 
 // Takes the result of flatmap.Expand for an array of strings

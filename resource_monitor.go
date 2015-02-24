@@ -162,7 +162,7 @@ func resourceMonitorCreate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceMonitorRead(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 
 	r, resp, err := c.GetMonitor(d.Get("name").(string))
 	if err != nil {
@@ -213,7 +213,7 @@ func resourceMonitorUpdate(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceMonitorDelete(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 	r := stingray.NewMonitor(d.Id())
 
 	_, err := c.Delete(r)
@@ -225,7 +225,7 @@ func resourceMonitorDelete(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceMonitorSet(d *schema.ResourceData, meta interface{}) error {
-	c := meta.(*stingray.Client)
+	c := meta.(*providerConfig).client
 	r := stingray.NewMonitor(d.Get("name").(string))
 
 	setInt(&r.Basic.Delay, d, "delay")
