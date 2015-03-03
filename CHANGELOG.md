@@ -1,3 +1,7 @@
+## 1.4.1
+
+* Update godeps for terraform v0.3.7
+
 ## 1.4.0
 
 * Add valid_networks option to provider
