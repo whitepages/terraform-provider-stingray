@@ -3,7 +3,6 @@ package main
 import (
 	"crypto/sha1"
 	"encoding/hex"
-	"os"
 	"strings"
 
 	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/helper/schema"
@@ -18,31 +17,31 @@ func Provider() terraform.ResourceProvider {
 			"url": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: envDefaultFunc("STINGRAY_URL", nil),
+				DefaultFunc: schema.EnvDefaultFunc("STINGRAY_URL", nil),
 			},
 
 			"username": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: envDefaultFunc("STINGRAY_USERNAME", nil),
+				DefaultFunc: schema.EnvDefaultFunc("STINGRAY_USERNAME", nil),
 			},
 
 			"password": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: envDefaultFunc("STINGRAY_PASSWORD", nil),
+				DefaultFunc: schema.EnvDefaultFunc("STINGRAY_PASSWORD", nil),
 			},
 
 			"valid_networks": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: envDefaultFunc("STINGRAY_VALID_NETWORKS", ""),
+				DefaultFunc: schema.EnvDefaultFunc("STINGRAY_VALID_NETWORKS", ""),
 			},
 
 			"verify_ssl": &schema.Schema{
 				Type:        schema.TypeBool,
 				Optional:    true,
-				DefaultFunc: envDefaultFunc("STINGRAY_VERIFY_SSL", true),
+				DefaultFunc: schema.EnvDefaultFunc("STINGRAY_VERIFY_SSL", true),
 			},
 		},
 
@@ -152,15 +151,5 @@ func setStringSet(target **[]string, d *schema.ResourceData, key string) {
 	if _, ok := d.GetOk(key); ok {
 		list := expandStringList(d.Get(key).(*schema.Set).List())
 		*target = &list
-	}
-}
-
-func envDefaultFunc(k string, alt interface{}) schema.SchemaDefaultFunc {
-	return func() (interface{}, error) {
-		if v := os.Getenv(k); v != "" {
-			return v, nil
-		}
-
-		return alt, nil
 	}
 }
