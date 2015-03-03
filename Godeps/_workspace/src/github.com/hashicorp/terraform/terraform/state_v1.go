@@ -10,7 +10,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/hashicorp/terraform/config"
+	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/config"
 )
 
 // The format byte is prefixed into the state file format so that we have

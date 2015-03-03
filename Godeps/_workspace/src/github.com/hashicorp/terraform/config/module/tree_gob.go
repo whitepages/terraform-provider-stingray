@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/gob"
 
-	"github.com/hashicorp/terraform/config"
+	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/config"
 )
 
 func (t *Tree) GobDecode(bs []byte) error {

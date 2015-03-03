@@ -7,10 +7,10 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/hashicorp/terraform/config"
-	"github.com/hashicorp/terraform/config/module"
-	"github.com/hashicorp/terraform/depgraph"
-	"github.com/hashicorp/terraform/helper/multierror"
+	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/config"
+	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/config/module"
+	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/depgraph"
+	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/helper/multierror"
 )
 
 // GraphOpts are options used to create the resource graph that Terraform

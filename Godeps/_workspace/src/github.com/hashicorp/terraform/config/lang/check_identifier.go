@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/hashicorp/terraform/config/lang/ast"
+	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/config/lang/ast"
 )
 
 // IdentifierCheck is a SemanticCheck that checks that all identifiers

@@ -12,7 +12,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/hashicorp/terraform/digraph"
+	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/digraph"
 )
 
 // WalkFunc is the type used for the callback for Walk.

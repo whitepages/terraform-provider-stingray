@@ -5,9 +5,9 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/hashicorp/terraform/config/lang"
-	"github.com/hashicorp/terraform/config/lang/ast"
-	"github.com/mitchellh/reflectwalk"
+	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/config/lang"
+	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/config/lang/ast"
+	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/mitchellh/reflectwalk"
 )
 
 // InterpSplitDelim is the delimeter that is looked for to split when

@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"encoding/gob"
 
-	"github.com/hashicorp/terraform/config/lang"
-	"github.com/hashicorp/terraform/config/lang/ast"
-	"github.com/mitchellh/copystructure"
-	"github.com/mitchellh/reflectwalk"
+	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/config/lang"
+	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/config/lang/ast"
+	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/mitchellh/copystructure"
+	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/mitchellh/reflectwalk"
 )
 
 // UnknownVariableValue is a sentinel value that can be used

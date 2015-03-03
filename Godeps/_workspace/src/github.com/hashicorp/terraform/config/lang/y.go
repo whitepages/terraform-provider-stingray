@@ -5,7 +5,7 @@ import __yyfmt__ "fmt"
 
 //line lang.y:6
 import (
-	"github.com/hashicorp/terraform/config/lang/ast"
+	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/config/lang/ast"
 )
 
 //line lang.y:14

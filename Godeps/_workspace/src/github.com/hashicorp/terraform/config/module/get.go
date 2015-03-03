@@ -12,7 +12,7 @@ import (
 	"strings"
 	"syscall"
 
-	urlhelper "github.com/hashicorp/terraform/helper/url"
+	urlhelper "github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/helper/url"
 )
 
 // Getter defines the interface that schemes must implement to download

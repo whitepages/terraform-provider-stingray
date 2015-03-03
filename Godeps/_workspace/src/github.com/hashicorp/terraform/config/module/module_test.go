@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/hashicorp/terraform/config"
-	urlhelper "github.com/hashicorp/terraform/helper/url"
+	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/config"
+	urlhelper "github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/helper/url"
 )
 
 const fixtureDir = "./test-fixtures"

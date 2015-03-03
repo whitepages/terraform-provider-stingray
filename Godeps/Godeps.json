@@ -1,7 +1,11 @@
 {
 	"ImportPath": "github.com/whitepages/terraform-provider-stingray",
-	"GoVersion": "go1.3.3",
+	"GoVersion": "go1.4.2",
 	"Deps": [
+		{
+			"ImportPath": "github.com/hashicorp/go-multierror",
+			"Rev": "fcdddc395df1ddf4247c69bd436e84cfa0733f7e"
+		},
 		{
 			"ImportPath": "github.com/hashicorp/hcl",
 			"Rev": "2c88e7ea6e73ce6455c11cc8a8375e6220913f7f"
@@ -38,6 +42,11 @@
 		},
 		{
 			"ImportPath": "github.com/hashicorp/terraform/helper/schema",
+			"Comment": "v0.3.7",
+			"Rev": "0bc0c03fece07c4f21ee5195743116a4d418f234"
+		},
+		{
+			"ImportPath": "github.com/hashicorp/terraform/helper/url",
 			"Comment": "v0.3.7",
 			"Rev": "0bc0c03fece07c4f21ee5195743116a4d418f234"
 		},

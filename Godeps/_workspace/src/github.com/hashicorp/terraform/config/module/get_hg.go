@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"runtime"
 
-	urlhelper "github.com/hashicorp/terraform/helper/url"
+	urlhelper "github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/helper/url"
 )
 
 // HgGetter is a Getter implementation that will download a module from

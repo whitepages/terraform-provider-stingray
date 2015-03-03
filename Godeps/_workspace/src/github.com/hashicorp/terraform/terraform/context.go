@@ -10,11 +10,11 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/hashicorp/terraform/config"
-	"github.com/hashicorp/terraform/config/lang/ast"
-	"github.com/hashicorp/terraform/config/module"
-	"github.com/hashicorp/terraform/depgraph"
-	"github.com/hashicorp/terraform/helper/multierror"
+	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/config"
+	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/config/lang/ast"
+	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/config/module"
+	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/depgraph"
+	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/helper/multierror"
 )
 
 // This is a function type used to implement a walker for the resource

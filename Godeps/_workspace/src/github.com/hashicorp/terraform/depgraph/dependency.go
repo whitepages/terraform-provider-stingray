@@ -3,7 +3,7 @@ package depgraph
 import (
 	"fmt"
 
-	"github.com/hashicorp/terraform/digraph"
+	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/digraph"
 )
 
 // Dependency is used to create a directed edge between two nouns.

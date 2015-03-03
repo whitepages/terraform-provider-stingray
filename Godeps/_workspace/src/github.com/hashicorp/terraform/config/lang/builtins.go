@@ -3,7 +3,7 @@ package lang
 import (
 	"strconv"
 
-	"github.com/hashicorp/terraform/config/lang/ast"
+	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/config/lang/ast"
 )
 
 // NOTE: All builtins are tested in engine_test.go

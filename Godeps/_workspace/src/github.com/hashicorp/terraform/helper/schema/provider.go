@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/terraform"
 )
 
 // Provider represents a resource provider in Terraform, and properly

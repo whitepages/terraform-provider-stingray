@@ -3,7 +3,7 @@ package rpc
 import (
 	"testing"
 
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/terraform"
 )
 
 func TestUIOutput_impl(t *testing.T) {

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/mitchellh/mapstructure"
+	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/mitchellh/mapstructure"
 )
 
 // MapFieldWriter writes data into a single map[string]string structure.
