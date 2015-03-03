@@ -2,8 +2,9 @@ package module
 
 import (
 	"fmt"
-	"net/url"
 	"path/filepath"
+
+	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/helper/url"
 )
 
 // Detector defines the interface that an invalid URL or a URL with a blank

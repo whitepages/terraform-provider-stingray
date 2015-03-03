@@ -1,6 +1,7 @@
 package schema
 
 import (
+	"math"
 	"reflect"
 	"testing"
 
@@ -15,6 +16,7 @@ func TestResourceDataGet(t *testing.T) {
 		Key    string
 		Value  interface{}
 	}{
+		// #0
 		{
 			Schema: map[string]*Schema{
 				"availability_zone": &Schema{
@@ -41,6 +43,7 @@ func TestResourceDataGet(t *testing.T) {
 			Value: "",
 		},
 
+		// #1
 		{
 			Schema: map[string]*Schema{
 				"availability_zone": &Schema{
@@ -68,6 +71,7 @@ func TestResourceDataGet(t *testing.T) {
 			Value: "foo",
 		},
 
+		// #2
 		{
 			Schema: map[string]*Schema{
 				"availability_zone": &Schema{
@@ -94,6 +98,7 @@ func TestResourceDataGet(t *testing.T) {
 			Value: "foo",
 		},
 
+		// #3
 		{
 			Schema: map[string]*Schema{
 				"availability_zone": &Schema{
@@ -117,6 +122,7 @@ func TestResourceDataGet(t *testing.T) {
 			Value: "bar",
 		},
 
+		// #4
 		{
 			Schema: map[string]*Schema{
 				"availability_zone": &Schema{
@@ -147,6 +153,7 @@ func TestResourceDataGet(t *testing.T) {
 			Value: "",
 		},
 
+		// #5
 		{
 			Schema: map[string]*Schema{
 				"port": &Schema{
@@ -170,6 +177,7 @@ func TestResourceDataGet(t *testing.T) {
 			Value: 80,
 		},
 
+		// #6
 		{
 			Schema: map[string]*Schema{
 				"ports": &Schema{
@@ -193,6 +201,7 @@ func TestResourceDataGet(t *testing.T) {
 			Value: 2,
 		},
 
+		// #7
 		{
 			Schema: map[string]*Schema{
 				"ports": &Schema{
@@ -216,6 +225,7 @@ func TestResourceDataGet(t *testing.T) {
 			Value: 3,
 		},
 
+		// #8
 		{
 			Schema: map[string]*Schema{
 				"ports": &Schema{
@@ -232,6 +242,7 @@ func TestResourceDataGet(t *testing.T) {
 			Value: 0,
 		},
 
+		// #9
 		{
 			Schema: map[string]*Schema{
 				"ports": &Schema{
@@ -255,6 +266,7 @@ func TestResourceDataGet(t *testing.T) {
 			Value: []interface{}{1, 2, 5},
 		},
 
+		// #10
 		{
 			Schema: map[string]*Schema{
 				"ingress": &Schema{
@@ -293,6 +305,7 @@ func TestResourceDataGet(t *testing.T) {
 			},
 		},
 
+		// #11
 		{
 			Schema: map[string]*Schema{
 				"ingress": &Schema{
@@ -333,7 +346,7 @@ func TestResourceDataGet(t *testing.T) {
 			},
 		},
 
-		// Computed get
+		// #12 Computed get
 		{
 			Schema: map[string]*Schema{
 				"availability_zone": &Schema{
@@ -353,7 +366,7 @@ func TestResourceDataGet(t *testing.T) {
 			Value: "foo",
 		},
 
-		// Full object
+		// #13 Full object
 		{
 			Schema: map[string]*Schema{
 				"availability_zone": &Schema{
@@ -383,7 +396,7 @@ func TestResourceDataGet(t *testing.T) {
 			},
 		},
 
-		// List of maps
+		// #14 List of maps
 		{
 			Schema: map[string]*Schema{
 				"config_vars": &Schema{
@@ -427,7 +440,7 @@ func TestResourceDataGet(t *testing.T) {
 			},
 		},
 
-		// List of maps in state
+		// #15 List of maps in state
 		{
 			Schema: map[string]*Schema{
 				"config_vars": &Schema{
@@ -462,7 +475,7 @@ func TestResourceDataGet(t *testing.T) {
 			},
 		},
 
-		// List of maps with removal in diff
+		// #16 List of maps with removal in diff
 		{
 			Schema: map[string]*Schema{
 				"config_vars": &Schema{
@@ -500,7 +513,7 @@ func TestResourceDataGet(t *testing.T) {
 			Value: []interface{}{},
 		},
 
-		// Sets
+		// #17 Sets
 		{
 			Schema: map[string]*Schema{
 				"ports": &Schema{
@@ -516,8 +529,8 @@ func TestResourceDataGet(t *testing.T) {
 
 			State: &terraform.InstanceState{
 				Attributes: map[string]string{
-					"ports.#": "1",
-					"ports.0": "80",
+					"ports.#":  "1",
+					"ports.80": "80",
 				},
 			},
 
@@ -528,6 +541,7 @@ func TestResourceDataGet(t *testing.T) {
 			Value: []interface{}{80},
 		},
 
+		// #18
 		{
 			Schema: map[string]*Schema{
 				"data": &Schema{
@@ -555,15 +569,15 @@ func TestResourceDataGet(t *testing.T) {
 
 			State: &terraform.InstanceState{
 				Attributes: map[string]string{
-					"data.#":       "1",
-					"data.0.index": "10",
-					"data.0.value": "50",
+					"data.#":        "1",
+					"data.10.index": "10",
+					"data.10.value": "50",
 				},
 			},
 
 			Diff: &terraform.InstanceDiff{
 				Attributes: map[string]*terraform.ResourceAttrDiff{
-					"data.0.value": &terraform.ResourceAttrDiff{
+					"data.10.value": &terraform.ResourceAttrDiff{
 						Old: "50",
 						New: "80",
 					},
@@ -579,6 +593,101 @@ func TestResourceDataGet(t *testing.T) {
 				},
 			},
 		},
+
+		// #19 Empty Set
+		{
+			Schema: map[string]*Schema{
+				"ports": &Schema{
+					Type:     TypeSet,
+					Optional: true,
+					Computed: true,
+					Elem:     &Schema{Type: TypeInt},
+					Set: func(a interface{}) int {
+						return a.(int)
+					},
+				},
+			},
+
+			State: nil,
+
+			Diff: nil,
+
+			Key: "ports",
+
+			Value: []interface{}{},
+		},
+
+		// #20 Float zero
+		{
+			Schema: map[string]*Schema{
+				"ratio": &Schema{
+					Type:     TypeFloat,
+					Optional: true,
+					Computed: true,
+				},
+			},
+
+			State: nil,
+
+			Diff: nil,
+
+			Key: "ratio",
+
+			Value: 0.0,
+		},
+
+		// #21 Float given
+		{
+			Schema: map[string]*Schema{
+				"ratio": &Schema{
+					Type:     TypeFloat,
+					Optional: true,
+					Computed: true,
+				},
+			},
+
+			State: &terraform.InstanceState{
+				Attributes: map[string]string{
+					"ratio": "0.5",
+				},
+			},
+
+			Diff: nil,
+
+			Key: "ratio",
+
+			Value: 0.5,
+		},
+
+		// #22 Float diff
+		{
+			Schema: map[string]*Schema{
+				"ratio": &Schema{
+					Type:     TypeFloat,
+					Optional: true,
+					Computed: true,
+				},
+			},
+
+			State: &terraform.InstanceState{
+				Attributes: map[string]string{
+					"ratio": "-0.5",
+				},
+			},
+
+			Diff: &terraform.InstanceDiff{
+				Attributes: map[string]*terraform.ResourceAttrDiff{
+					"ratio": &terraform.ResourceAttrDiff{
+						Old: "-0.5",
+						New: "33.0",
+					},
+				},
+			},
+
+			Key: "ratio",
+
+			Value: 33.0,
+		},
 	}
 
 	for i, tc := range cases {
@@ -593,7 +702,7 @@ func TestResourceDataGet(t *testing.T) {
 		}
 
 		if !reflect.DeepEqual(v, tc.Value) {
-			t.Fatalf("Bad: %d\n\n%#v", i, v)
+			t.Fatalf("Bad: %d\n\n%#v\n\nExpected: %#v", i, v, tc.Value)
 		}
 	}
 }
@@ -719,7 +828,34 @@ func TestResourceDataGetOk(t *testing.T) {
 
 			Key:   "availability_zone",
 			Value: "",
-			Ok:    true,
+			Ok:    false,
+		},
+
+		{
+			Schema: map[string]*Schema{
+				"availability_zone": &Schema{
+					Type:     TypeString,
+					Optional: true,
+					Computed: true,
+					ForceNew: true,
+				},
+			},
+
+			State: nil,
+
+			Diff: &terraform.InstanceDiff{
+				Attributes: map[string]*terraform.ResourceAttrDiff{
+					"availability_zone": &terraform.ResourceAttrDiff{
+						Old:         "",
+						New:         "",
+						NewComputed: true,
+					},
+				},
+			},
+
+			Key:   "availability_zone",
+			Value: "",
+			Ok:    false,
 		},
 
 		{
@@ -823,6 +959,32 @@ func TestResourceDataGetOk(t *testing.T) {
 
 			Key:   "ports.0",
 			Value: 0,
+			Ok:    false,
+		},
+
+		{
+			Schema: map[string]*Schema{
+				"ports": &Schema{
+					Type:     TypeSet,
+					Optional: true,
+					Elem:     &Schema{Type: TypeInt},
+					Set:      func(a interface{}) int { return a.(int) },
+				},
+			},
+
+			State: nil,
+
+			Diff: &terraform.InstanceDiff{
+				Attributes: map[string]*terraform.ResourceAttrDiff{
+					"ports.#": &terraform.ResourceAttrDiff{
+						Old: "0",
+						New: "0",
+					},
+				},
+			},
+
+			Key:   "ports",
+			Value: []interface{}{},
 			Ok:    false,
 		},
 	}
@@ -937,6 +1099,69 @@ func TestResourceDataHasChange(t *testing.T) {
 
 			Change: true,
 		},
+
+		{
+			Schema: map[string]*Schema{
+				"ports": &Schema{
+					Type:     TypeSet,
+					Optional: true,
+					Elem:     &Schema{Type: TypeInt},
+					Set:      func(a interface{}) int { return a.(int) },
+				},
+			},
+
+			State: &terraform.InstanceState{
+				Attributes: map[string]string{
+					"ports.#":  "1",
+					"ports.80": "80",
+				},
+			},
+
+			Diff: &terraform.InstanceDiff{
+				Attributes: map[string]*terraform.ResourceAttrDiff{
+					"ports.#": &terraform.ResourceAttrDiff{
+						Old: "1",
+						New: "0",
+					},
+				},
+			},
+
+			Key: "ports",
+
+			Change: true,
+		},
+
+		// https://github.com/hashicorp/terraform/issues/927
+		{
+			Schema: map[string]*Schema{
+				"ports": &Schema{
+					Type:     TypeSet,
+					Optional: true,
+					Elem:     &Schema{Type: TypeInt},
+					Set:      func(a interface{}) int { return a.(int) },
+				},
+			},
+
+			State: &terraform.InstanceState{
+				Attributes: map[string]string{
+					"ports.#":  "1",
+					"ports.80": "80",
+				},
+			},
+
+			Diff: &terraform.InstanceDiff{
+				Attributes: map[string]*terraform.ResourceAttrDiff{
+					"tags.foo": &terraform.ResourceAttrDiff{
+						Old: "",
+						New: "bar",
+					},
+				},
+			},
+
+			Key: "ports",
+
+			Change: false,
+		},
 	}
 
 	for i, tc := range cases {
@@ -962,8 +1187,12 @@ func TestResourceDataSet(t *testing.T) {
 		Err      bool
 		GetKey   string
 		GetValue interface{}
+
+		// GetPreProcess can be set to munge the return value before being
+		// compared to GetValue
+		GetPreProcess func(interface{}) interface{}
 	}{
-		// Basic good
+		// #0: Basic good
 		{
 			Schema: map[string]*Schema{
 				"availability_zone": &Schema{
@@ -985,7 +1214,7 @@ func TestResourceDataSet(t *testing.T) {
 			GetValue: "foo",
 		},
 
-		// Basic int
+		// #1: Basic int
 		{
 			Schema: map[string]*Schema{
 				"port": &Schema{
@@ -1007,7 +1236,7 @@ func TestResourceDataSet(t *testing.T) {
 			GetValue: 80,
 		},
 
-		// Basic bool
+		// #2: Basic bool
 		{
 			Schema: map[string]*Schema{
 				"vpc": &Schema{
@@ -1027,6 +1256,7 @@ func TestResourceDataSet(t *testing.T) {
 			GetValue: true,
 		},
 
+		// #3
 		{
 			Schema: map[string]*Schema{
 				"vpc": &Schema{
@@ -1046,7 +1276,7 @@ func TestResourceDataSet(t *testing.T) {
 			GetValue: false,
 		},
 
-		// Invalid type
+		// #4: Invalid type
 		{
 			Schema: map[string]*Schema{
 				"availability_zone": &Schema{
@@ -1069,35 +1299,7 @@ func TestResourceDataSet(t *testing.T) {
 			GetValue: "",
 		},
 
-		// List of primitives, set element
-		{
-			Schema: map[string]*Schema{
-				"ports": &Schema{
-					Type:     TypeList,
-					Computed: true,
-					Elem:     &Schema{Type: TypeInt},
-				},
-			},
-
-			State: &terraform.InstanceState{
-				Attributes: map[string]string{
-					"ports.#": "3",
-					"ports.0": "1",
-					"ports.1": "2",
-					"ports.2": "5",
-				},
-			},
-
-			Diff: nil,
-
-			Key:   "ports.1",
-			Value: 3,
-
-			GetKey:   "ports",
-			GetValue: []interface{}{1, 3, 5},
-		},
-
-		// List of primitives, set list
+		// #5: List of primitives, set list
 		{
 			Schema: map[string]*Schema{
 				"ports": &Schema{
@@ -1118,7 +1320,7 @@ func TestResourceDataSet(t *testing.T) {
 			GetValue: []interface{}{1, 2, 5},
 		},
 
-		// List of primitives, set list with error
+		// #6: List of primitives, set list with error
 		{
 			Schema: map[string]*Schema{
 				"ports": &Schema{
@@ -1140,140 +1342,7 @@ func TestResourceDataSet(t *testing.T) {
 			GetValue: []interface{}{},
 		},
 
-		// List of resource, set element
-		{
-			Schema: map[string]*Schema{
-				"ingress": &Schema{
-					Type:     TypeList,
-					Computed: true,
-					Elem: &Resource{
-						Schema: map[string]*Schema{
-							"from": &Schema{
-								Type: TypeInt,
-							},
-						},
-					},
-				},
-			},
-
-			State: &terraform.InstanceState{
-				Attributes: map[string]string{
-					"ingress.#":      "2",
-					"ingress.0.from": "80",
-					"ingress.1.from": "8080",
-				},
-			},
-
-			Diff: nil,
-
-			Key:   "ingress.1.from",
-			Value: 9000,
-
-			GetKey: "ingress",
-			GetValue: []interface{}{
-				map[string]interface{}{
-					"from": 80,
-				},
-				map[string]interface{}{
-					"from": 9000,
-				},
-			},
-		},
-
-		// List of resource, set full resource element
-		{
-			Schema: map[string]*Schema{
-				"ingress": &Schema{
-					Type:     TypeList,
-					Computed: true,
-					Elem: &Resource{
-						Schema: map[string]*Schema{
-							"from": &Schema{
-								Type: TypeInt,
-							},
-						},
-					},
-				},
-			},
-
-			State: &terraform.InstanceState{
-				Attributes: map[string]string{
-					"ingress.#":      "2",
-					"ingress.0.from": "80",
-					"ingress.1.from": "8080",
-				},
-			},
-
-			Diff: nil,
-
-			Key: "ingress.1",
-			Value: map[string]interface{}{
-				"from": 9000,
-			},
-
-			GetKey: "ingress",
-			GetValue: []interface{}{
-				map[string]interface{}{
-					"from": 80,
-				},
-				map[string]interface{}{
-					"from": 9000,
-				},
-			},
-		},
-
-		// List of resource, set full resource element, with error
-		{
-			Schema: map[string]*Schema{
-				"ingress": &Schema{
-					Type:     TypeList,
-					Computed: true,
-					Elem: &Resource{
-						Schema: map[string]*Schema{
-							"from": &Schema{
-								Type: TypeInt,
-							},
-							"to": &Schema{
-								Type: TypeInt,
-							},
-						},
-					},
-				},
-			},
-
-			State: &terraform.InstanceState{
-				Attributes: map[string]string{
-					"ingress.#":      "2",
-					"ingress.0.from": "80",
-					"ingress.0.to":   "10",
-					"ingress.1.from": "8080",
-					"ingress.1.to":   "8080",
-				},
-			},
-
-			Diff: nil,
-
-			Key: "ingress.1",
-			Value: map[string]interface{}{
-				"from": 9000,
-				"to":   "bar",
-			},
-			Err: true,
-
-			GetKey: "ingress",
-			GetValue: []interface{}{
-				map[string]interface{}{
-					"from": 80,
-					"to":   10,
-				},
-				map[string]interface{}{
-					"from": 8080,
-					"to":   8080,
-				},
-			},
-		},
-
-		// Set a list of maps
+		// #7: Set a list of maps
 		{
 			Schema: map[string]*Schema{
 				"config_vars": &Schema{
@@ -1312,46 +1381,7 @@ func TestResourceDataSet(t *testing.T) {
 			},
 		},
 
-		// Set a list of maps
-		{
-			Schema: map[string]*Schema{
-				"config_vars": &Schema{
-					Type:     TypeList,
-					Optional: true,
-					Computed: true,
-					Elem: &Schema{
-						Type: TypeMap,
-					},
-				},
-			},
-
-			State: nil,
-
-			Diff: nil,
-
-			Key: "config_vars",
-			Value: []interface{}{
-				map[string]string{
-					"foo": "bar",
-				},
-				map[string]string{
-					"bar": "baz",
-				},
-			},
-			Err: false,
-
-			GetKey: "config_vars",
-			GetValue: []interface{}{
-				map[string]interface{}{
-					"foo": "bar",
-				},
-				map[string]interface{}{
-					"bar": "baz",
-				},
-			},
-		},
-
-		// Set, with list
+		// #8: Set, with list
 		{
 			Schema: map[string]*Schema{
 				"ports": &Schema{
@@ -1381,7 +1411,7 @@ func TestResourceDataSet(t *testing.T) {
 			GetValue: []interface{}{100, 125},
 		},
 
-		// Set, with Set
+		// #9: Set, with Set
 		{
 			Schema: map[string]*Schema{
 				"ports": &Schema{
@@ -1397,10 +1427,10 @@ func TestResourceDataSet(t *testing.T) {
 
 			State: &terraform.InstanceState{
 				Attributes: map[string]string{
-					"ports.#": "3",
-					"ports.0": "100",
-					"ports.1": "80",
-					"ports.2": "80",
+					"ports.#":   "3",
+					"ports.100": "100",
+					"ports.80":  "80",
+					"ports.81":  "81",
 				},
 			},
 
@@ -1416,7 +1446,7 @@ func TestResourceDataSet(t *testing.T) {
 			GetValue: []interface{}{1, 2},
 		},
 
-		// Set single item
+		// #10: Set single item
 		{
 			Schema: map[string]*Schema{
 				"ports": &Schema{
@@ -1432,18 +1462,131 @@ func TestResourceDataSet(t *testing.T) {
 
 			State: &terraform.InstanceState{
 				Attributes: map[string]string{
-					"ports.#": "2",
-					"ports.0": "100",
-					"ports.1": "80",
+					"ports.#":   "2",
+					"ports.100": "100",
+					"ports.80":  "80",
 				},
 			},
 
-			Key:   "ports.0",
+			Key:   "ports.100",
 			Value: 256,
 			Err:   true,
 
 			GetKey:   "ports",
 			GetValue: []interface{}{80, 100},
+		},
+
+		// #11: Set with nested set
+		{
+			Schema: map[string]*Schema{
+				"ports": &Schema{
+					Type: TypeSet,
+					Elem: &Resource{
+						Schema: map[string]*Schema{
+							"port": &Schema{
+								Type: TypeInt,
+							},
+
+							"set": &Schema{
+								Type: TypeSet,
+								Elem: &Schema{Type: TypeInt},
+								Set: func(a interface{}) int {
+									return a.(int)
+								},
+							},
+						},
+					},
+					Set: func(a interface{}) int {
+						return a.(map[string]interface{})["port"].(int)
+					},
+				},
+			},
+
+			State: nil,
+
+			Key: "ports",
+			Value: []interface{}{
+				map[string]interface{}{
+					"port": 80,
+				},
+			},
+
+			GetKey: "ports",
+			GetValue: []interface{}{
+				map[string]interface{}{
+					"port": 80,
+					"set":  []interface{}{},
+				},
+			},
+
+			GetPreProcess: func(v interface{}) interface{} {
+				if v == nil {
+					return v
+				}
+				s, ok := v.([]interface{})
+				if !ok {
+					return v
+				}
+				for _, v := range s {
+					m, ok := v.(map[string]interface{})
+					if !ok {
+						continue
+					}
+					if m["set"] == nil {
+						continue
+					}
+					if s, ok := m["set"].(*Set); ok {
+						m["set"] = s.List()
+					}
+				}
+
+				return v
+			},
+		},
+
+		// #12: List of floats, set list
+		{
+			Schema: map[string]*Schema{
+				"ratios": &Schema{
+					Type:     TypeList,
+					Computed: true,
+					Elem:     &Schema{Type: TypeFloat},
+				},
+			},
+
+			State: nil,
+
+			Diff: nil,
+
+			Key:   "ratios",
+			Value: []float64{1.0, 2.2, 5.5},
+
+			GetKey:   "ratios",
+			GetValue: []interface{}{1.0, 2.2, 5.5},
+		},
+
+		// #12: Set of floats, set list
+		{
+			Schema: map[string]*Schema{
+				"ratios": &Schema{
+					Type:     TypeSet,
+					Computed: true,
+					Elem:     &Schema{Type: TypeFloat},
+					Set: func(a interface{}) int {
+						return int(math.Float64bits(a.(float64)))
+					},
+				},
+			},
+
+			State: nil,
+
+			Diff: nil,
+
+			Key:   "ratios",
+			Value: []float64{1.0, 2.2, 5.5},
+
+			GetKey:   "ratios",
+			GetValue: []interface{}{1.0, 2.2, 5.5},
 		},
 	}
 
@@ -1462,6 +1605,11 @@ func TestResourceDataSet(t *testing.T) {
 		if s, ok := v.(*Set); ok {
 			v = s.List()
 		}
+
+		if tc.GetPreProcess != nil {
+			v = tc.GetPreProcess(v)
+		}
+
 		if !reflect.DeepEqual(v, tc.GetValue) {
 			t.Fatalf("Get Bad: %d\n\n%#v", i, v)
 		}
@@ -1477,7 +1625,7 @@ func TestResourceDataState(t *testing.T) {
 		Result  *terraform.InstanceState
 		Partial []string
 	}{
-		// Basic primitive in diff
+		// #0 Basic primitive in diff
 		{
 			Schema: map[string]*Schema{
 				"availability_zone": &Schema{
@@ -1507,7 +1655,7 @@ func TestResourceDataState(t *testing.T) {
 			},
 		},
 
-		// Basic primitive set override
+		// #1 Basic primitive set override
 		{
 			Schema: map[string]*Schema{
 				"availability_zone": &Schema{
@@ -1541,6 +1689,7 @@ func TestResourceDataState(t *testing.T) {
 			},
 		},
 
+		// #2
 		{
 			Schema: map[string]*Schema{
 				"vpc": &Schema{
@@ -1564,7 +1713,7 @@ func TestResourceDataState(t *testing.T) {
 			},
 		},
 
-		// Basic primitive with StateFunc set
+		// #3 Basic primitive with StateFunc set
 		{
 			Schema: map[string]*Schema{
 				"availability_zone": &Schema{
@@ -1594,7 +1743,7 @@ func TestResourceDataState(t *testing.T) {
 			},
 		},
 
-		// List
+		// #4 List
 		{
 			Schema: map[string]*Schema{
 				"ports": &Schema{
@@ -1633,7 +1782,7 @@ func TestResourceDataState(t *testing.T) {
 			},
 		},
 
-		// List of resources
+		// #5 List of resources
 		{
 			Schema: map[string]*Schema{
 				"ingress": &Schema{
@@ -1683,7 +1832,7 @@ func TestResourceDataState(t *testing.T) {
 			},
 		},
 
-		// List of maps
+		// #6 List of maps
 		{
 			Schema: map[string]*Schema{
 				"config_vars": &Schema{
@@ -1699,8 +1848,10 @@ func TestResourceDataState(t *testing.T) {
 			State: &terraform.InstanceState{
 				Attributes: map[string]string{
 					"config_vars.#":     "2",
+					"config_vars.0.#":   "2",
 					"config_vars.0.foo": "bar",
 					"config_vars.0.bar": "bar",
+					"config_vars.1.#":   "1",
 					"config_vars.1.bar": "baz",
 				},
 			},
@@ -1714,21 +1865,28 @@ func TestResourceDataState(t *testing.T) {
 			},
 
 			Set: map[string]interface{}{
-				"config_vars.1": map[string]interface{}{
-					"baz": "bang",
+				"config_vars": []map[string]interface{}{
+					map[string]interface{}{
+						"foo": "bar",
+					},
+					map[string]interface{}{
+						"baz": "bang",
+					},
 				},
 			},
 
 			Result: &terraform.InstanceState{
 				Attributes: map[string]string{
 					"config_vars.#":     "2",
+					"config_vars.0.#":   "1",
 					"config_vars.0.foo": "bar",
+					"config_vars.1.#":   "1",
 					"config_vars.1.baz": "bang",
 				},
 			},
 		},
 
-		// List of maps with removal in diff
+		// #7 List of maps with removal in diff
 		{
 			Schema: map[string]*Schema{
 				"config_vars": &Schema{
@@ -1768,7 +1926,7 @@ func TestResourceDataState(t *testing.T) {
 			},
 		},
 
-		// Basic state with other keys
+		// #8 Basic state with other keys
 		{
 			Schema: map[string]*Schema{
 				"availability_zone": &Schema{
@@ -1805,7 +1963,7 @@ func TestResourceDataState(t *testing.T) {
 			},
 		},
 
-		// Sets
+		// #9 Sets
 		{
 			Schema: map[string]*Schema{
 				"ports": &Schema{
@@ -1821,10 +1979,10 @@ func TestResourceDataState(t *testing.T) {
 
 			State: &terraform.InstanceState{
 				Attributes: map[string]string{
-					"ports.#": "3",
-					"ports.0": "100",
-					"ports.1": "80",
-					"ports.2": "80",
+					"ports.#":   "3",
+					"ports.100": "100",
+					"ports.80":  "80",
+					"ports.81":  "81",
 				},
 			},
 
@@ -1832,13 +1990,15 @@ func TestResourceDataState(t *testing.T) {
 
 			Result: &terraform.InstanceState{
 				Attributes: map[string]string{
-					"ports.#": "2",
-					"ports.0": "80",
-					"ports.1": "100",
+					"ports.#":   "3",
+					"ports.80":  "80",
+					"ports.81":  "81",
+					"ports.100": "100",
 				},
 			},
 		},
 
+		// #10
 		{
 			Schema: map[string]*Schema{
 				"ports": &Schema{
@@ -1862,13 +2022,14 @@ func TestResourceDataState(t *testing.T) {
 
 			Result: &terraform.InstanceState{
 				Attributes: map[string]string{
-					"ports.#": "2",
-					"ports.0": "80",
-					"ports.1": "100",
+					"ports.#":   "2",
+					"ports.80":  "80",
+					"ports.100": "100",
 				},
 			},
 		},
 
+		// #11
 		{
 			Schema: map[string]*Schema{
 				"ports": &Schema{
@@ -1901,13 +2062,13 @@ func TestResourceDataState(t *testing.T) {
 
 			State: &terraform.InstanceState{
 				Attributes: map[string]string{
-					"ports.#":       "2",
-					"ports.0.order": "10",
-					"ports.0.a.#":   "1",
-					"ports.0.a.0":   "80",
-					"ports.1.order": "20",
-					"ports.1.b.#":   "1",
-					"ports.1.b.0":   "100",
+					"ports.#":        "2",
+					"ports.10.order": "10",
+					"ports.10.a.#":   "1",
+					"ports.10.a.0":   "80",
+					"ports.20.order": "20",
+					"ports.20.b.#":   "1",
+					"ports.20.b.0":   "100",
 				},
 			},
 
@@ -1926,13 +2087,15 @@ func TestResourceDataState(t *testing.T) {
 
 			Result: &terraform.InstanceState{
 				Attributes: map[string]string{
-					"ports.#":       "2",
-					"ports.0.order": "10",
-					"ports.0.a.#":   "1",
-					"ports.0.a.0":   "80",
-					"ports.1.order": "20",
-					"ports.1.b.#":   "1",
-					"ports.1.b.0":   "100",
+					"ports.#":        "2",
+					"ports.10.order": "10",
+					"ports.10.a.#":   "1",
+					"ports.10.a.0":   "80",
+					"ports.10.b.#":   "0",
+					"ports.20.order": "20",
+					"ports.20.a.#":   "0",
+					"ports.20.b.#":   "1",
+					"ports.20.b.0":   "100",
 				},
 			},
 		},
@@ -1941,7 +2104,7 @@ func TestResourceDataState(t *testing.T) {
 		 * PARTIAL STATES
 		 */
 
-		// Basic primitive
+		// #12 Basic primitive
 		{
 			Schema: map[string]*Schema{
 				"availability_zone": &Schema{
@@ -1971,7 +2134,7 @@ func TestResourceDataState(t *testing.T) {
 			},
 		},
 
-		// List
+		// #13 List
 		{
 			Schema: map[string]*Schema{
 				"ports": &Schema{
@@ -2011,6 +2174,7 @@ func TestResourceDataState(t *testing.T) {
 			},
 		},
 
+		// #14
 		{
 			Schema: map[string]*Schema{
 				"ports": &Schema{
@@ -2039,13 +2203,11 @@ func TestResourceDataState(t *testing.T) {
 			},
 
 			Result: &terraform.InstanceState{
-				Attributes: map[string]string{
-					"ports.#": "0",
-				},
+				Attributes: map[string]string{},
 			},
 		},
 
-		// List of resources
+		// #15 List of resources
 		{
 			Schema: map[string]*Schema{
 				"ingress": &Schema{
@@ -2096,7 +2258,7 @@ func TestResourceDataState(t *testing.T) {
 			},
 		},
 
-		// List of maps
+		// #16 List of maps
 		{
 			Schema: map[string]*Schema{
 				"config_vars": &Schema{
@@ -2127,8 +2289,13 @@ func TestResourceDataState(t *testing.T) {
 			},
 
 			Set: map[string]interface{}{
-				"config_vars.1": map[string]interface{}{
-					"baz": "bang",
+				"config_vars": []map[string]interface{}{
+					map[string]interface{}{
+						"foo": "bar",
+					},
+					map[string]interface{}{
+						"baz": "bang",
+					},
 				},
 			},
 
@@ -2136,15 +2303,18 @@ func TestResourceDataState(t *testing.T) {
 
 			Result: &terraform.InstanceState{
 				Attributes: map[string]string{
+					// TODO: broken, shouldn't bar be removed?
 					"config_vars.#":     "2",
+					"config_vars.0.#":   "2",
 					"config_vars.0.foo": "bar",
 					"config_vars.0.bar": "bar",
+					"config_vars.1.#":   "1",
 					"config_vars.1.bar": "baz",
 				},
 			},
 		},
 
-		// Sets
+		// #17 Sets
 		{
 			Schema: map[string]*Schema{
 				"ports": &Schema{
@@ -2160,16 +2330,16 @@ func TestResourceDataState(t *testing.T) {
 
 			State: &terraform.InstanceState{
 				Attributes: map[string]string{
-					"ports.#": "3",
-					"ports.0": "100",
-					"ports.1": "80",
-					"ports.2": "80",
+					"ports.#":   "3",
+					"ports.100": "100",
+					"ports.80":  "80",
+					"ports.81":  "81",
 				},
 			},
 
 			Diff: &terraform.InstanceDiff{
 				Attributes: map[string]*terraform.ResourceAttrDiff{
-					"ports.1": &terraform.ResourceAttrDiff{
+					"ports.120": &terraform.ResourceAttrDiff{
 						New: "120",
 					},
 				},
@@ -2179,13 +2349,15 @@ func TestResourceDataState(t *testing.T) {
 
 			Result: &terraform.InstanceState{
 				Attributes: map[string]string{
-					"ports.#": "2",
-					"ports.0": "80",
-					"ports.1": "100",
+					"ports.#":   "3",
+					"ports.80":  "80",
+					"ports.81":  "81",
+					"ports.100": "100",
 				},
 			},
 		},
 
+		// #18
 		{
 			Schema: map[string]*Schema{
 				"ports": &Schema{
@@ -2213,13 +2385,11 @@ func TestResourceDataState(t *testing.T) {
 			Partial: []string{},
 
 			Result: &terraform.InstanceState{
-				Attributes: map[string]string{
-					"ports.#": "0",
-				},
+				Attributes: map[string]string{},
 			},
 		},
 
-		// Maps
+		// #19 Maps
 		{
 			Schema: map[string]*Schema{
 				"tags": &Schema{
@@ -2242,11 +2412,13 @@ func TestResourceDataState(t *testing.T) {
 
 			Result: &terraform.InstanceState{
 				Attributes: map[string]string{
+					"tags.#":    "1",
 					"tags.Name": "foo",
 				},
 			},
 		},
 
+		// #20
 		{
 			Schema: map[string]*Schema{
 				"tags": &Schema{
@@ -2273,6 +2445,254 @@ func TestResourceDataState(t *testing.T) {
 
 			Result: &terraform.InstanceState{
 				Attributes: map[string]string{},
+			},
+		},
+
+		// #21
+		{
+			Schema: map[string]*Schema{
+				"foo": &Schema{
+					Type:     TypeString,
+					Optional: true,
+					Computed: true,
+				},
+			},
+
+			State: nil,
+
+			Diff: &terraform.InstanceDiff{
+				Attributes: map[string]*terraform.ResourceAttrDiff{
+					"foo": &terraform.ResourceAttrDiff{
+						NewComputed: true,
+					},
+				},
+			},
+
+			Result: &terraform.InstanceState{
+				Attributes: map[string]string{},
+			},
+		},
+
+		// #22
+		{
+			Schema: map[string]*Schema{
+				"foo": &Schema{
+					Type:     TypeString,
+					Optional: true,
+					Computed: true,
+				},
+			},
+
+			State: nil,
+
+			Diff: &terraform.InstanceDiff{
+				Attributes: map[string]*terraform.ResourceAttrDiff{
+					"foo": &terraform.ResourceAttrDiff{
+						NewComputed: true,
+					},
+				},
+			},
+
+			Set: map[string]interface{}{
+				"foo": "bar",
+			},
+
+			Result: &terraform.InstanceState{
+				Attributes: map[string]string{
+					"foo": "bar",
+				},
+			},
+		},
+
+		// #23 Set of maps
+		{
+			Schema: map[string]*Schema{
+				"ports": &Schema{
+					Type:     TypeSet,
+					Optional: true,
+					Computed: true,
+					Elem: &Resource{
+						Schema: map[string]*Schema{
+							"index": &Schema{Type: TypeInt},
+							"uuids": &Schema{Type: TypeMap},
+						},
+					},
+					Set: func(a interface{}) int {
+						m := a.(map[string]interface{})
+						return m["index"].(int)
+					},
+				},
+			},
+
+			State: nil,
+
+			Diff: &terraform.InstanceDiff{
+				Attributes: map[string]*terraform.ResourceAttrDiff{
+					"ports.10.uuids.#": &terraform.ResourceAttrDiff{
+						NewComputed: true,
+					},
+				},
+			},
+
+			Set: map[string]interface{}{
+				"ports": []interface{}{
+					map[string]interface{}{
+						"index": 10,
+						"uuids": map[string]interface{}{
+							"80": "value",
+						},
+					},
+				},
+			},
+
+			Result: &terraform.InstanceState{
+				Attributes: map[string]string{
+					"ports.#":           "1",
+					"ports.10.index":    "10",
+					"ports.10.uuids.#":  "1",
+					"ports.10.uuids.80": "value",
+				},
+			},
+		},
+
+		// #24
+		{
+			Schema: map[string]*Schema{
+				"ports": &Schema{
+					Type:     TypeSet,
+					Optional: true,
+					Computed: true,
+					Elem:     &Schema{Type: TypeInt},
+					Set: func(a interface{}) int {
+						return a.(int)
+					},
+				},
+			},
+
+			State: &terraform.InstanceState{
+				Attributes: map[string]string{
+					"ports.#":   "3",
+					"ports.100": "100",
+					"ports.80":  "80",
+					"ports.81":  "81",
+				},
+			},
+
+			Diff: &terraform.InstanceDiff{
+				Attributes: map[string]*terraform.ResourceAttrDiff{
+					"ports.#": &terraform.ResourceAttrDiff{
+						Old: "3",
+						New: "0",
+					},
+				},
+			},
+
+			Result: &terraform.InstanceState{
+				Attributes: map[string]string{
+					"ports.#": "0",
+				},
+			},
+		},
+
+		// #25
+		{
+			Schema: map[string]*Schema{
+				"ports": &Schema{
+					Type:     TypeSet,
+					Optional: true,
+					Computed: true,
+					Elem:     &Schema{Type: TypeInt},
+					Set: func(a interface{}) int {
+						return a.(int)
+					},
+				},
+			},
+
+			State: nil,
+
+			Diff: nil,
+
+			Set: map[string]interface{}{
+				"ports": []interface{}{},
+			},
+
+			Result: &terraform.InstanceState{
+				Attributes: map[string]string{
+					"ports.#": "0",
+				},
+			},
+		},
+
+		// #26
+		{
+			Schema: map[string]*Schema{
+				"ports": &Schema{
+					Type:     TypeList,
+					Optional: true,
+					Computed: true,
+					Elem:     &Schema{Type: TypeInt},
+				},
+			},
+
+			State: nil,
+
+			Diff: nil,
+
+			Set: map[string]interface{}{
+				"ports": []interface{}{},
+			},
+
+			Result: &terraform.InstanceState{
+				Attributes: map[string]string{
+					"ports.#": "0",
+				},
+			},
+		},
+
+		// #27 Set lists
+		{
+			Schema: map[string]*Schema{
+				"ports": &Schema{
+					Type:     TypeList,
+					Optional: true,
+					Computed: true,
+					Elem: &Resource{
+						Schema: map[string]*Schema{
+							"index": &Schema{Type: TypeInt},
+							"uuids": &Schema{Type: TypeMap},
+						},
+					},
+				},
+			},
+
+			State: nil,
+
+			Diff: &terraform.InstanceDiff{
+				Attributes: map[string]*terraform.ResourceAttrDiff{
+					"ports.#": &terraform.ResourceAttrDiff{
+						NewComputed: true,
+					},
+				},
+			},
+
+			Set: map[string]interface{}{
+				"ports": []interface{}{
+					map[string]interface{}{
+						"index": 10,
+						"uuids": map[string]interface{}{
+							"80": "value",
+						},
+					},
+				},
+			},
+
+			Result: &terraform.InstanceState{
+				Attributes: map[string]string{
+					"ports.#":          "1",
+					"ports.0.index":    "10",
+					"ports.0.uuids.#":  "1",
+					"ports.0.uuids.80": "value",
+				},
 			},
 		},
 	}

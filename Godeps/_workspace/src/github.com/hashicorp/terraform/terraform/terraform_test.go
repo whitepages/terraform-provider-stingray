@@ -15,8 +15,8 @@ import (
 	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/config/module"
 )
 
-// This is the directory where our test fixtures are.
-const fixtureDir = "./test-fixtures"
+const fixtureDir = // This is the directory where our test fixtures are.
+"./test-fixtures"
 
 func checksumStruct(t *testing.T, i interface{}) string {
 	// TODO(mitchellh): write a library to do this because gob is not
@@ -925,6 +925,19 @@ CREATE: aws_instance.bar
 module.child:
   CREATE: aws_instance.foo
     foo:  "" => "<computed>"
+    type: "" => "aws_instance"
+
+STATE:
+
+<no state>
+`
+
+const testTerraformPlanModuleVarIntStr = `
+DIFF:
+
+module.child:
+  CREATE: aws_instance.foo
+    num:  "" => "2"
     type: "" => "aws_instance"
 
 STATE:

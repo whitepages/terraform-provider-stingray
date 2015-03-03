@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/config"
+	urlhelper "github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/helper/url"
 )
 
 const fixtureDir = "./test-fixtures"
@@ -39,15 +40,11 @@ func testModule(n string) string {
 	if err != nil {
 		panic(err)
 	}
-
-	var url url.URL
-	url.Scheme = "file"
-	url.Path = p
-	return url.String()
+	return fmtFileURL(p)
 }
 
 func testModuleURL(n string) *url.URL {
-	u, err := url.Parse(testModule(n))
+	u, err := urlhelper.Parse(testModule(n))
 	if err != nil {
 		panic(err)
 	}
