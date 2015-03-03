@@ -5,8 +5,8 @@ import (
 	"net"
 	"net/rpc"
 
-	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/terraform"
-	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/yamux"
+	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/yamux"
 )
 
 // Client connects to a Server in order to request plugin implementations

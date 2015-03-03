@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/config"
+	"github.com/hashicorp/terraform/config"
 )
 
 func TestInstanceInfo(t *testing.T) {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"reflect"
+	"runtime"
 	"sort"
 	"strings"
 	"sync"
@@ -2861,6 +2862,35 @@ func TestContextPlan(t *testing.T) {
 	}
 }
 
+func TestContextPlan_emptyDiff(t *testing.T) {
+	m := testModule(t, "plan-empty")
+	p := testProvider("aws")
+	p.DiffFn = func(
+		info *InstanceInfo,
+		s *InstanceState,
+		c *ResourceConfig) (*InstanceDiff, error) {
+		return nil, nil
+	}
+
+	ctx := testContext(t, &ContextOpts{
+		Module: m,
+		Providers: map[string]ResourceProviderFactory{
+			"aws": testProviderFuncFixed(p),
+		},
+	})
+
+	plan, err := ctx.Plan(nil)
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+
+	actual := strings.TrimSpace(plan.String())
+	expected := strings.TrimSpace(testTerraformPlanEmptyStr)
+	if actual != expected {
+		t.Fatalf("bad:\n%s", actual)
+	}
+}
+
 func TestContextPlan_minimal(t *testing.T) {
 	m := testModule(t, "plan-empty")
 	p := testProvider("aws")
@@ -3789,13 +3819,21 @@ func TestContextPlan_pathVar(t *testing.T) {
 	actual := strings.TrimSpace(plan.String())
 	expected := strings.TrimSpace(testTerraformPlanPathVarStr)
 
+	module := m.Config().Dir
+	root := m.Config().Dir
+	if runtime.GOOS == "windows" {
+		// The attributes in the diff are %#v-formatted. This means
+		// that all `\` characters in the Windows paths are escaped
+		// with a `\`. We need to escape the `\` characters in cwd,
+		// module, and root before doing any comparison work.
+		cwd = strings.Replace(cwd, `\`, `\\`, -1)
+		module = strings.Replace(module, `\`, `\\`, -1)
+		root = strings.Replace(root, `\`, `\\`, -1)
+	}
+
 	// Warning: this ordering REALLY matters for this test. The
 	// order is: cwd, module, root.
-	expected = fmt.Sprintf(
-		expected,
-		cwd,
-		m.Config().Dir,
-		m.Config().Dir)
+	expected = fmt.Sprintf(expected, cwd, module, root)
 
 	if actual != expected {
 		t.Fatalf("bad:\n%s\n\nexpected:\n\n%s", actual, expected)
@@ -4015,6 +4053,25 @@ func TestContextPlan_taint(t *testing.T) {
 	}
 }
 
+// Doing a Refresh (or any operation really, but Refresh usually
+// happens first) with a config with an unknown provider should result in
+// an error. The key bug this found was that this wasn't happening if
+// Providers was _empty_.
+func TestContextRefresh_unknownProvider(t *testing.T) {
+	m := testModule(t, "refresh-unknown-provider")
+	p := testProvider("aws")
+	p.ApplyFn = testApplyFn
+	p.DiffFn = testDiffFn
+	ctx := testContext(t, &ContextOpts{
+		Module:    m,
+		Providers: map[string]ResourceProviderFactory{},
+	})
+
+	if _, err := ctx.Refresh(); err == nil {
+		t.Fatal("should error")
+	}
+}
+
 func TestContextPlan_multiple_taint(t *testing.T) {
 	m := testModule(t, "plan-taint")
 	p := testProvider("aws")
@@ -4116,6 +4173,22 @@ func TestContextPlan_varMultiCountOne(t *testing.T) {
 	expected := strings.TrimSpace(testTerraformPlanVarMultiCountOneStr)
 	if actual != expected {
 		t.Fatalf("bad:\n%s", actual)
+	}
+}
+
+func TestContextPlan_varListErr(t *testing.T) {
+	m := testModule(t, "plan-var-list-err")
+	p := testProvider("aws")
+	ctx := testContext(t, &ContextOpts{
+		Module: m,
+		Providers: map[string]ResourceProviderFactory{
+			"aws": testProviderFuncFixed(p),
+		},
+	})
+
+	_, err := ctx.Plan(nil)
+	if err == nil {
+		t.Fatal("should error")
 	}
 }
 
@@ -4348,6 +4421,22 @@ func TestContextRefresh_modules(t *testing.T) {
 
 func TestContextRefresh_moduleInputComputedOutput(t *testing.T) {
 	m := testModule(t, "refresh-module-input-computed-output")
+	p := testProvider("aws")
+	p.DiffFn = testDiffFn
+	ctx := testContext(t, &ContextOpts{
+		Module: m,
+		Providers: map[string]ResourceProviderFactory{
+			"aws": testProviderFuncFixed(p),
+		},
+	})
+
+	if _, err := ctx.Refresh(); err != nil {
+		t.Fatalf("err: %s", err)
+	}
+}
+
+func TestContextRefresh_moduleVarModule(t *testing.T) {
+	m := testModule(t, "refresh-module-var-module")
 	p := testProvider("aws")
 	p.DiffFn = testDiffFn
 	ctx := testContext(t, &ContextOpts{

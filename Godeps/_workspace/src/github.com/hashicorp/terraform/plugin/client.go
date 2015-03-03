@@ -16,7 +16,7 @@ import (
 	"time"
 	"unicode"
 
-	tfrpc "github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/rpc"
+	tfrpc "github.com/hashicorp/terraform/rpc"
 )
 
 // If this is true, then the "unexpected EOF" panic will not be

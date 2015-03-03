@@ -8,7 +8,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/yamux"
+	"github.com/hashicorp/yamux"
 )
 
 // muxBroker is responsible for brokering multiplexed connections by unique ID.

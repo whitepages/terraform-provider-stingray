@@ -3,6 +3,7 @@ package module
 import (
 	"fmt"
 	"path/filepath"
+	"runtime"
 )
 
 // FileDetector implements Detector to detect file paths.
@@ -13,8 +14,6 @@ func (d *FileDetector) Detect(src, pwd string) (string, bool, error) {
 		return "", false, nil
 	}
 
-	// Make sure we're using "/" even on Windows. URLs are "/"-based.
-	src = filepath.ToSlash(src)
 	if !filepath.IsAbs(src) {
 		if pwd == "" {
 			return "", true, fmt.Errorf(
@@ -23,11 +22,19 @@ func (d *FileDetector) Detect(src, pwd string) (string, bool, error) {
 
 		src = filepath.Join(pwd, src)
 	}
+	return fmtFileURL(src), true, nil
+}
 
-	// Make sure that we don't start with "/" since we add that below
-	if src[0] == '/' {
-		src = src[1:]
+func fmtFileURL(path string) string {
+	if runtime.GOOS == "windows" {
+		// Make sure we're using "/" on Windows. URLs are "/"-based.
+		path = filepath.ToSlash(path)
+		return fmt.Sprintf("file://%s", path)
 	}
 
-	return fmt.Sprintf("file:///%s", src), true, nil
+	// Make sure that we don't start with "/" since we add that below.
+	if path[0] == '/' {
+		path = path[1:]
+	}
+	return fmt.Sprintf("file:///%s", path)
 }

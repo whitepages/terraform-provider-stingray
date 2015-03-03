@@ -8,7 +8,7 @@ import (
 	"io"
 	"sync"
 
-	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/config/module"
+	"github.com/hashicorp/terraform/config/module"
 )
 
 func init() {

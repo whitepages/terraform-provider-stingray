@@ -8,53 +8,53 @@
 		},
 		{
 			"ImportPath": "github.com/hashicorp/terraform/config",
-			"Comment": "v0.3.5",
-			"Rev": "a4cf3fec1c8341041f41897ea84781e6be9b1dad"
+			"Comment": "v0.3.7",
+			"Rev": "0bc0c03fece07c4f21ee5195743116a4d418f234"
 		},
 		{
 			"ImportPath": "github.com/hashicorp/terraform/depgraph",
-			"Comment": "v0.3.5",
-			"Rev": "a4cf3fec1c8341041f41897ea84781e6be9b1dad"
+			"Comment": "v0.3.7",
+			"Rev": "0bc0c03fece07c4f21ee5195743116a4d418f234"
 		},
 		{
 			"ImportPath": "github.com/hashicorp/terraform/digraph",
-			"Comment": "v0.3.5",
-			"Rev": "a4cf3fec1c8341041f41897ea84781e6be9b1dad"
+			"Comment": "v0.3.7",
+			"Rev": "0bc0c03fece07c4f21ee5195743116a4d418f234"
 		},
 		{
 			"ImportPath": "github.com/hashicorp/terraform/flatmap",
-			"Comment": "v0.3.5",
-			"Rev": "a4cf3fec1c8341041f41897ea84781e6be9b1dad"
+			"Comment": "v0.3.7",
+			"Rev": "0bc0c03fece07c4f21ee5195743116a4d418f234"
 		},
 		{
 			"ImportPath": "github.com/hashicorp/terraform/helper/hashcode",
-			"Comment": "v0.3.5",
-			"Rev": "a4cf3fec1c8341041f41897ea84781e6be9b1dad"
+			"Comment": "v0.3.7",
+			"Rev": "0bc0c03fece07c4f21ee5195743116a4d418f234"
 		},
 		{
 			"ImportPath": "github.com/hashicorp/terraform/helper/multierror",
-			"Comment": "v0.3.5",
-			"Rev": "a4cf3fec1c8341041f41897ea84781e6be9b1dad"
+			"Comment": "v0.3.7",
+			"Rev": "0bc0c03fece07c4f21ee5195743116a4d418f234"
 		},
 		{
 			"ImportPath": "github.com/hashicorp/terraform/helper/schema",
-			"Comment": "v0.3.5",
-			"Rev": "a4cf3fec1c8341041f41897ea84781e6be9b1dad"
+			"Comment": "v0.3.7",
+			"Rev": "0bc0c03fece07c4f21ee5195743116a4d418f234"
 		},
 		{
 			"ImportPath": "github.com/hashicorp/terraform/plugin",
-			"Comment": "v0.3.5",
-			"Rev": "a4cf3fec1c8341041f41897ea84781e6be9b1dad"
+			"Comment": "v0.3.7",
+			"Rev": "0bc0c03fece07c4f21ee5195743116a4d418f234"
 		},
 		{
 			"ImportPath": "github.com/hashicorp/terraform/rpc",
-			"Comment": "v0.3.5",
-			"Rev": "a4cf3fec1c8341041f41897ea84781e6be9b1dad"
+			"Comment": "v0.3.7",
+			"Rev": "0bc0c03fece07c4f21ee5195743116a4d418f234"
 		},
 		{
 			"ImportPath": "github.com/hashicorp/terraform/terraform",
-			"Comment": "v0.3.5",
-			"Rev": "a4cf3fec1c8341041f41897ea84781e6be9b1dad"
+			"Comment": "v0.3.7",
+			"Rev": "0bc0c03fece07c4f21ee5195743116a4d418f234"
 		},
 		{
 			"ImportPath": "github.com/hashicorp/yamux",

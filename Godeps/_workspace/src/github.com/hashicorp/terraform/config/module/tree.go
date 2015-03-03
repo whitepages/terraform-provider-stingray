@@ -8,7 +8,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/config"
+	"github.com/hashicorp/terraform/config"
 )
 
 // RootName is the name of the root tree.

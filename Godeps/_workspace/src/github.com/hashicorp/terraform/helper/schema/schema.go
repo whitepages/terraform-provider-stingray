@@ -13,26 +13,14 @@ package schema
 
 import (
 	"fmt"
+	"os"
 	"reflect"
 	"sort"
 	"strconv"
 	"strings"
 
-	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/terraform"
-	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/mitchellh/mapstructure"
-)
-
-// ValueType is an enum of the type that can be represented by a schema.
-type ValueType int
-
-const (
-	TypeInvalid ValueType = iota
-	TypeBool
-	TypeInt
-	TypeString
-	TypeList
-	TypeMap
-	TypeSet
+	"github.com/hashicorp/terraform/terraform"
+	"github.com/mitchellh/mapstructure"
 )
 
 // Schema is used to describe the structure of a value.
@@ -47,6 +35,7 @@ type Schema struct {
 	//
 	//   TypeBool - bool
 	//   TypeInt - int
+	//   TypeFloat - float64
 	//   TypeString - string
 	//   TypeList - []interface{}
 	//   TypeMap - map[string]interface{}
@@ -71,7 +60,7 @@ type Schema struct {
 	//
 	// If Required is true above, then Default cannot be set. DefaultFunc
 	// can be set with Required. If the DefaultFunc returns nil, then there
-	// will no default and the user will be asked to fill it in.
+	// will be no default and the user will be asked to fill it in.
 	//
 	// If either of these is set, then the user won't be asked for input
 	// for this key if the default is not nil.
@@ -112,7 +101,7 @@ type Schema struct {
 	// element type is a complex structure, potentially with its own lifecycle.
 	Elem interface{}
 
-	// The follow fields are only valid for a TypeSet type.
+	// The following fields are only valid for a TypeSet type.
 	//
 	// Set defines a function to determine the unique ID of an item so that
 	// a proper set can be built.
@@ -130,6 +119,34 @@ type Schema struct {
 // a field.
 type SchemaDefaultFunc func() (interface{}, error)
 
+// EnvDefaultFunc is a helper function that returns the value of the
+// given environment variable, if one exists, or the default value
+// otherwise.
+func EnvDefaultFunc(k string, dv interface{}) SchemaDefaultFunc {
+	return func() (interface{}, error) {
+		if v := os.Getenv(k); v != "" {
+			return v, nil
+		}
+
+		return dv, nil
+	}
+}
+
+// MultiEnvDefaultFunc is a helper function that returns the value of the first
+// environment variable in the given list that returns a non-empty value. If
+// none of the environment variables return a value, the default value is
+// returned.
+func MultiEnvDefaultFunc(ks []string, dv interface{}) SchemaDefaultFunc {
+	return func() (interface{}, error) {
+		for _, k := range ks {
+			if v := os.Getenv(k); v != "" {
+				return v, nil
+			}
+		}
+		return dv, nil
+	}
+}
+
 // SchemaSetFunc is a function that must return a unique ID for the given
 // element. This unique ID is used to store the element in a hash.
 type SchemaSetFunc func(interface{}) int
@@ -140,6 +157,24 @@ type SchemaStateFunc func(interface{}) string
 
 func (s *Schema) GoString() string {
 	return fmt.Sprintf("*%#v", *s)
+}
+
+// Returns a default value for this schema by either reading Default or
+// evaluating DefaultFunc. If neither of these are defined, returns nil.
+func (s *Schema) DefaultValue() (interface{}, error) {
+	if s.Default != nil {
+		return s.Default, nil
+	}
+
+	if s.DefaultFunc != nil {
+		defaultValue, err := s.DefaultFunc()
+		if err != nil {
+			return nil, fmt.Errorf("error loading default: %s", err)
+		}
+		return defaultValue, nil
+	}
+
+	return nil, nil
 }
 
 func (s *Schema) finalizeDiff(
@@ -198,10 +233,9 @@ func (m schemaMap) Diff(
 	result.Attributes = make(map[string]*terraform.ResourceAttrDiff)
 
 	d := &ResourceData{
-		schema:  m,
-		state:   s,
-		config:  c,
-		diffing: true,
+		schema: m,
+		state:  s,
+		config: c,
 	}
 
 	for k, schema := range m {
@@ -220,8 +254,10 @@ func (m schemaMap) Diff(
 		result2 := new(terraform.InstanceDiff)
 		result2.Attributes = make(map[string]*terraform.ResourceAttrDiff)
 
-		// Reset the data to not contain state
+		// Reset the data to not contain state. We have to call init()
+		// again in order to reset the FieldReaders.
 		d.state = nil
+		d.init()
 
 		// Perform the diff again
 		for k, schema := range m {
@@ -313,27 +349,22 @@ func (m schemaMap) Input(
 			continue
 		}
 
-		// Skip if it has a default
-		if v.Default != nil {
-			continue
+		// Skip if it has a default value
+		defaultValue, err := v.DefaultValue()
+		if err != nil {
+			return nil, fmt.Errorf("%s: error loading default: %s", k, err)
 		}
-		if f := v.DefaultFunc; f != nil {
-			value, err := f()
-			if err != nil {
-				return nil, fmt.Errorf(
-					"%s: error loading default: %s", k, err)
-			}
-			if value != nil {
-				continue
-			}
+		if defaultValue != nil {
+			continue
 		}
 
 		var value interface{}
-		var err error
 		switch v.Type {
 		case TypeBool:
 			fallthrough
 		case TypeInt:
+			fallthrough
+		case TypeFloat:
 			fallthrough
 		case TypeString:
 			value, err = m.inputString(input, k, v)
@@ -435,6 +466,8 @@ func (m schemaMap) diff(
 		fallthrough
 	case TypeInt:
 		fallthrough
+	case TypeFloat:
+		fallthrough
 	case TypeString:
 		err = m.diffString(k, schema, diff, d, all)
 	case TypeList:
@@ -457,11 +490,15 @@ func (m schemaMap) diffList(
 	d *ResourceData,
 	all bool) error {
 	o, n, _, computedList := d.diffChange(k)
+	if computedList {
+		n = nil
+	}
 	nSet := n != nil
 
-	// If we have an old value, but no new value set but we're computed,
-	// then nothing has changed.
-	if o != nil && n == nil && schema.Computed {
+	// If we have an old value and no new value is set or will be
+	// computed once all variables can be interpolated and we're
+	// computed, then nothing has changed.
+	if o != nil && n == nil && !computedList && schema.Computed {
 		return nil
 	}
 
@@ -531,6 +568,17 @@ func (m schemaMap) diffList(
 	}
 
 	switch t := schema.Elem.(type) {
+	case *Resource:
+		// This is a complex resource
+		for i := 0; i < maxLen; i++ {
+			for k2, schema := range t.Schema {
+				subK := fmt.Sprintf("%s.%d.%s", k, i, k2)
+				err := m.diff(subK, schema, diff, d, all)
+				if err != nil {
+					return err
+				}
+			}
+		}
 	case *Schema:
 		// Copy the schema so that we can set Computed/ForceNew from
 		// the parent schema (the TypeList).
@@ -544,17 +592,6 @@ func (m schemaMap) diffList(
 			err := m.diff(subK, &t2, diff, d, all)
 			if err != nil {
 				return err
-			}
-		}
-	case *Resource:
-		// This is a complex resource
-		for i := 0; i < maxLen; i++ {
-			for k2, schema := range t.Schema {
-				subK := fmt.Sprintf("%s.%d.%s", k, i, k2)
-				err := m.diff(subK, schema, diff, d, all)
-				if err != nil {
-					return err
-				}
 			}
 		}
 	default:
@@ -582,6 +619,41 @@ func (m schemaMap) diffMap(
 		return fmt.Errorf("%s: %s", k, err)
 	}
 
+	// Delete any count values, since we don't use those
+	delete(configMap, "#")
+	delete(stateMap, "#")
+
+	// Check if the number of elements has changed. If we're computing
+	// a list and there isn't a config, then it hasn't changed.
+	oldLen, newLen := len(stateMap), len(configMap)
+	changed := oldLen != newLen
+	if oldLen != 0 && newLen == 0 && schema.Computed {
+		changed = false
+	}
+	computed := oldLen == 0 && newLen == 0 && schema.Computed
+	if changed || computed {
+		countSchema := &Schema{
+			Type:     TypeInt,
+			Computed: schema.Computed,
+			ForceNew: schema.ForceNew,
+		}
+
+		oldStr := strconv.FormatInt(int64(oldLen), 10)
+		newStr := ""
+		if !computed {
+			newStr = strconv.FormatInt(int64(newLen), 10)
+		} else {
+			oldStr = ""
+		}
+
+		diff.Attributes[k+".#"] = countSchema.finalizeDiff(
+			&terraform.ResourceAttrDiff{
+				Old: oldStr,
+				New: newStr,
+			},
+		)
+	}
+
 	// If the new map is nil and we're computed, then ignore it.
 	if n == nil && schema.Computed {
 		return nil
@@ -589,10 +661,10 @@ func (m schemaMap) diffMap(
 
 	// Now we compare, preferring values from the config map
 	for k, v := range configMap {
-		old := stateMap[k]
+		old, ok := stateMap[k]
 		delete(stateMap, k)
 
-		if old == v && !all {
+		if old == v && ok && !all {
 			continue
 		}
 
@@ -617,25 +689,112 @@ func (m schemaMap) diffSet(
 	diff *terraform.InstanceDiff,
 	d *ResourceData,
 	all bool) error {
-	if !all {
-		// This is a bit strange, but we expect the entire set to be in the diff,
-		// so we first diff the set normally but with a new diff. Then, if
-		// there IS any change, we just set the change to the entire list.
-		tempD := new(terraform.InstanceDiff)
-		tempD.Attributes = make(map[string]*terraform.ResourceAttrDiff)
-		if err := m.diffList(k, schema, tempD, d, false); err != nil {
-			return err
+	o, n, _, computedSet := d.diffChange(k)
+	if computedSet {
+		n = nil
+	}
+	nSet := n != nil
+
+	// If we have an old value and no new value is set or will be
+	// computed once all variables can be interpolated and we're
+	// computed, then nothing has changed.
+	if o != nil && n == nil && !computedSet && schema.Computed {
+		return nil
+	}
+
+	if o == nil {
+		o = &Set{F: schema.Set}
+	}
+	if n == nil {
+		n = &Set{F: schema.Set}
+	}
+	os := o.(*Set)
+	ns := n.(*Set)
+
+	// If the new value was set, compare the listCode's to determine if
+	// the two are equal. Comparing listCode's instead of the actuall values
+	// is needed because there could be computed values in the set which
+	// would result in false positives while comparing.
+	if !all && nSet && reflect.DeepEqual(os.listCode(), ns.listCode()) {
+		return nil
+	}
+
+	// Get the counts
+	oldLen := os.Len()
+	newLen := ns.Len()
+	oldStr := strconv.Itoa(oldLen)
+	newStr := strconv.Itoa(newLen)
+
+	// If the set computed then say that the # is computed
+	if computedSet || (schema.Computed && !nSet) {
+		// If # already exists, equals 0 and no new set is supplied, there
+		// is nothing to record in the diff
+		count, ok := d.GetOk(k + ".#")
+		if ok && count.(int) == 0 && !nSet && !computedSet {
+			return nil
 		}
 
-		// If we had no changes, then we're done
-		if tempD.Empty() {
-			return nil
+		// Set the count but make sure that if # does not exist, we don't
+		// use the zeroed value
+		countStr := strconv.Itoa(count.(int))
+		if !ok {
+			countStr = ""
+		}
+
+		diff.Attributes[k+".#"] = &terraform.ResourceAttrDiff{
+			Old:         countStr,
+			NewComputed: true,
+		}
+		return nil
+	}
+
+	// If the counts are not the same, then record that diff
+	changed := oldLen != newLen
+	if changed || all {
+		countSchema := &Schema{
+			Type:     TypeInt,
+			Computed: schema.Computed,
+			ForceNew: schema.ForceNew,
+		}
+
+		diff.Attributes[k+".#"] = countSchema.finalizeDiff(&terraform.ResourceAttrDiff{
+			Old: oldStr,
+			New: newStr,
+		})
+	}
+
+	for _, code := range ns.listCode() {
+		switch t := schema.Elem.(type) {
+		case *Resource:
+			// This is a complex resource
+			for k2, schema := range t.Schema {
+				subK := fmt.Sprintf("%s.%d.%s", k, code, k2)
+				subK = strings.Replace(subK, "-", "~", -1)
+				err := m.diff(subK, schema, diff, d, true)
+				if err != nil {
+					return err
+				}
+			}
+		case *Schema:
+			// Copy the schema so that we can set Computed/ForceNew from
+			// the parent schema (the TypeSet).
+			t2 := *t
+			t2.ForceNew = schema.ForceNew
+
+			// This is just a primitive element, so go through each and
+			// just diff each.
+			subK := fmt.Sprintf("%s.%d", k, code)
+			subK = strings.Replace(subK, "-", "~", -1)
+			err := m.diff(subK, &t2, diff, d, true)
+			if err != nil {
+				return err
+			}
+		default:
+			return fmt.Errorf("%s: unknown element type (internal)", k)
 		}
 	}
 
-	// We have changes, so re-run the diff, but set a flag to force
-	// getting all diffs, even if there is no change.
-	return m.diffList(k, schema, diff, d, true)
+	return nil
 }
 
 func (m schemaMap) diffString(
@@ -647,24 +806,18 @@ func (m schemaMap) diffString(
 	var originalN interface{}
 	var os, ns string
 	o, n, _, _ := d.diffChange(k)
-	if n == nil {
-		n = schema.Default
-		if schema.DefaultFunc != nil {
-			var err error
-			n, err = schema.DefaultFunc()
-			if err != nil {
-				return fmt.Errorf("%s, error loading default: %s", k, err)
-			}
-		}
-	}
 	if schema.StateFunc != nil {
 		originalN = n
 		n = schema.StateFunc(n)
 	}
+	nraw := n
+	if nraw == nil && o != nil {
+		nraw = schema.Type.Zero()
+	}
 	if err := mapstructure.WeakDecode(o, &os); err != nil {
 		return fmt.Errorf("%s: %s", k, err)
 	}
-	if err := mapstructure.WeakDecode(n, &ns); err != nil {
+	if err := mapstructure.WeakDecode(nraw, &ns); err != nil {
 		return fmt.Errorf("%s: %s", k, err)
 	}
 
@@ -745,7 +898,7 @@ func (m schemaMap) validate(
 			"%s: this field cannot be set", k)}
 	}
 
-	return m.validatePrimitive(k, raw, schema, c)
+	return m.validateType(k, raw, schema, c)
 }
 
 func (m schemaMap) validateList(
@@ -779,8 +932,7 @@ func (m schemaMap) validateList(
 			// This is a sub-resource
 			ws2, es2 = m.validateObject(key, t.Schema, c)
 		case *Schema:
-			// This is some sort of primitive
-			ws2, es2 = m.validatePrimitive(key, raw, t, c)
+			ws2, es2 = m.validateType(key, raw, t, c)
 		}
 
 		if len(ws2) > 0 {
@@ -854,19 +1006,13 @@ func (m schemaMap) validateObject(
 	}
 
 	// Detect any extra/unknown keys and report those as errors.
-	prefix := k + "."
-	for configK, _ := range c.Raw {
-		if k != "" {
-			if !strings.HasPrefix(configK, prefix) {
-				continue
+	raw, _ := c.Get(k)
+	if m, ok := raw.(map[string]interface{}); ok {
+		for subk, _ := range m {
+			if _, ok := schema[subk]; !ok {
+				es = append(es, fmt.Errorf(
+					"%s: invalid or unknown key: %s", k, subk))
 			}
-
-			configK = configK[len(prefix):]
-		}
-
-		if _, ok := schema[configK]; !ok {
-			es = append(es, fmt.Errorf(
-				"%s: invalid or unknown key: %s", k, configK))
 		}
 	}
 
@@ -884,12 +1030,6 @@ func (m schemaMap) validatePrimitive(
 	}
 
 	switch schema.Type {
-	case TypeSet:
-		fallthrough
-	case TypeList:
-		return m.validateList(k, raw, schema, c)
-	case TypeMap:
-		return m.validateMap(k, raw, schema, c)
 	case TypeBool:
 		// Verify that we can parse this as the correct type
 		var n bool
@@ -899,6 +1039,12 @@ func (m schemaMap) validatePrimitive(
 	case TypeInt:
 		// Verify that we can parse this as an int
 		var n int
+		if err := mapstructure.WeakDecode(raw, &n); err != nil {
+			return nil, []error{err}
+		}
+	case TypeFloat:
+		// Verify that we can parse this as an int
+		var n float64
 		if err := mapstructure.WeakDecode(raw, &n); err != nil {
 			return nil, []error{err}
 		}
@@ -913,4 +1059,47 @@ func (m schemaMap) validatePrimitive(
 	}
 
 	return nil, nil
+}
+
+func (m schemaMap) validateType(
+	k string,
+	raw interface{},
+	schema *Schema,
+	c *terraform.ResourceConfig) ([]string, []error) {
+	switch schema.Type {
+	case TypeSet:
+		fallthrough
+	case TypeList:
+		return m.validateList(k, raw, schema, c)
+	case TypeMap:
+		return m.validateMap(k, raw, schema, c)
+	default:
+		return m.validatePrimitive(k, raw, schema, c)
+	}
+}
+
+// Zero returns the zero value for a type.
+func (t ValueType) Zero() interface{} {
+	switch t {
+	case TypeInvalid:
+		return nil
+	case TypeBool:
+		return false
+	case TypeInt:
+		return 0
+	case TypeFloat:
+		return 0.0
+	case TypeString:
+		return ""
+	case TypeList:
+		return []interface{}{}
+	case TypeMap:
+		return map[string]interface{}{}
+	case TypeSet:
+		return new(Set)
+	case typeObject:
+		return map[string]interface{}{}
+	default:
+		panic(fmt.Sprintf("unknown type %s", t))
+	}
 }

@@ -5,7 +5,7 @@ import (
 	"net/rpc"
 	"testing"
 
-	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform/terraform"
 )
 
 func testConn(t *testing.T) (net.Conn, net.Conn) {

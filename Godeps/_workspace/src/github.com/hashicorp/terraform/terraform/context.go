@@ -10,10 +10,11 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/config"
-	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/config/module"
-	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/depgraph"
-	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/helper/multierror"
+	"github.com/hashicorp/terraform/config"
+	"github.com/hashicorp/terraform/config/lang/ast"
+	"github.com/hashicorp/terraform/config/module"
+	"github.com/hashicorp/terraform/depgraph"
+	"github.com/hashicorp/terraform/helper/multierror"
 )
 
 // This is a function type used to implement a walker for the resource
@@ -1520,9 +1521,12 @@ func (c *walkContext) computeVars(
 	}
 
 	// Copy the default variables
-	vs := make(map[string]string)
+	vs := make(map[string]ast.Variable)
 	for k, v := range c.defaultVariables {
-		vs[k] = v
+		vs[k] = ast.Variable{
+			Value: v,
+			Type:  ast.TypeString,
+		}
 	}
 
 	// Next, the actual computed variables
@@ -1532,12 +1536,18 @@ func (c *walkContext) computeVars(
 			switch v.Type {
 			case config.CountValueIndex:
 				if r != nil {
-					vs[n] = strconv.FormatInt(int64(r.CountIndex), 10)
+					vs[n] = ast.Variable{
+						Value: int(r.CountIndex),
+						Type:  ast.TypeInt,
+					}
 				}
 			}
 		case *config.ModuleVariable:
 			if c.Operation == walkValidate {
-				vs[n] = config.UnknownVariableValue
+				vs[n] = ast.Variable{
+					Value: config.UnknownVariableValue,
+					Type:  ast.TypeString,
+				}
 				continue
 			}
 
@@ -1546,7 +1556,10 @@ func (c *walkContext) computeVars(
 				return err
 			}
 
-			vs[n] = value
+			vs[n] = ast.Variable{
+				Value: value,
+				Type:  ast.TypeString,
+			}
 		case *config.PathVariable:
 			switch v.Type {
 			case config.PathValueCwd:
@@ -1557,17 +1570,29 @@ func (c *walkContext) computeVars(
 						v.FullKey(), err)
 				}
 
-				vs[n] = wd
+				vs[n] = ast.Variable{
+					Value: wd,
+					Type:  ast.TypeString,
+				}
 			case config.PathValueModule:
 				if t := c.Context.module.Child(c.Path[1:]); t != nil {
-					vs[n] = t.Config().Dir
+					vs[n] = ast.Variable{
+						Value: t.Config().Dir,
+						Type:  ast.TypeString,
+					}
 				}
 			case config.PathValueRoot:
-				vs[n] = c.Context.module.Config().Dir
+				vs[n] = ast.Variable{
+					Value: c.Context.module.Config().Dir,
+					Type:  ast.TypeString,
+				}
 			}
 		case *config.ResourceVariable:
 			if c.Operation == walkValidate {
-				vs[n] = config.UnknownVariableValue
+				vs[n] = ast.Variable{
+					Value: config.UnknownVariableValue,
+					Type:  ast.TypeString,
+				}
 				continue
 			}
 
@@ -1582,16 +1607,25 @@ func (c *walkContext) computeVars(
 				return err
 			}
 
-			vs[n] = attr
+			vs[n] = ast.Variable{
+				Value: attr,
+				Type:  ast.TypeString,
+			}
 		case *config.UserVariable:
 			val, ok := c.Variables[v.Name]
 			if ok {
-				vs[n] = val
+				vs[n] = ast.Variable{
+					Value: val,
+					Type:  ast.TypeString,
+				}
 				continue
 			}
 
 			if _, ok := vs[n]; !ok && c.Operation == walkValidate {
-				vs[n] = config.UnknownVariableValue
+				vs[n] = ast.Variable{
+					Value: config.UnknownVariableValue,
+					Type:  ast.TypeString,
+				}
 				continue
 			}
 
@@ -1599,7 +1633,10 @@ func (c *walkContext) computeVars(
 			// those are map overrides. Include those.
 			for k, val := range c.Variables {
 				if strings.HasPrefix(k, v.Name+".") {
-					vs["var."+k] = val
+					vs["var."+k] = ast.Variable{
+						Value: val,
+						Type:  ast.TypeString,
+					}
 				}
 			}
 		}
@@ -1623,18 +1660,19 @@ func (c *walkContext) computeModuleVariable(
 	// Get that module from our state
 	mod := c.Context.state.ModuleByPath(path)
 	if mod == nil {
-		return "", fmt.Errorf(
-			"Module '%s' not found for variable '%s'",
-			strings.Join(path[1:], "."),
-			v.FullKey())
+		// If the module doesn't exist, then we can return an empty string.
+		// This happens usually only in Refresh() when we haven't populated
+		// a state. During validation, we semantically verify that all
+		// modules reference other modules, and graph ordering should
+		// ensure that the module is in the state, so if we reach this
+		// point otherwise it really is a panic.
+		return config.UnknownVariableValue, nil
 	}
 
 	value, ok := mod.Outputs[v.Field]
 	if !ok {
-		return "", fmt.Errorf(
-			"Output field '%s' not found for variable '%s'",
-			v.Field,
-			v.FullKey())
+		// Same reasons as the comment above.
+		return config.UnknownVariableValue, nil
 	}
 
 	return value, nil
