@@ -174,6 +174,28 @@ func resourceVirtualServer() *schema.Resource {
 				Computed: true,
 			},
 
+			"ssl_server_cert_host_mapping": &schema.Schema{
+				Type:     schema.TypeSet,
+				Optional: true,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"certificate": &schema.Schema{
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"host": &schema.Schema{
+							Type:     schema.TypeString,
+							Required: true,
+						},
+					},
+				},
+				Set: func(v interface{}) int {
+					m := v.(map[string]interface{})
+					return hashcode.String(m["host"].(string))
+				},
+			},
+
 			"syslog_format": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -243,6 +265,7 @@ func resourceVirtualServerRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("ssl_add_http_headers", bool(*r.SSL.AddHTTPHeaders))
 	d.Set("ssl_decrypt", bool(*r.Basic.SSLDecrypt))
 	d.Set("ssl_server_cert_default", string(*r.SSL.ServerCertDefault))
+	d.Set("ssl_server_cert_host_mapping", flattenServerCertHostMappingTable(*r.SSL.ServerCertHostMapping))
 	d.Set("syslog_format", string(*r.Syslog.Format))
 	d.Set("web_cache_enabled", bool(*r.WebCache.Enabled))
 	d.Set("web_cache_max_time", int(*r.WebCache.MaxTime))
@@ -299,6 +322,7 @@ func resourceVirtualServerSet(d *schema.ResourceData, meta interface{}) error {
 	setBool(&r.SSL.AddHTTPHeaders, d, "ssl_add_http_headers")
 	setBool(&r.Basic.SSLDecrypt, d, "ssl_decrypt")
 	setString(&r.SSL.ServerCertDefault, d, "ssl_server_cert_default")
+	setServerCertHostMappingTable(&r.SSL.ServerCertHostMapping, d, "ssl_server_cert_host_mapping")
 	setString(&r.Syslog.Format, d, "syslog_format")
 	setBool(&r.WebCache.Enabled, d, "web_cache_enabled")
 	setInt(&r.WebCache.MaxTime, d, "web_cache_max_time")
@@ -311,4 +335,40 @@ func resourceVirtualServerSet(d *schema.ResourceData, meta interface{}) error {
 	d.SetId(d.Get("name").(string))
 
 	return nil
+}
+
+func setServerCertHostMappingTable(target **stingray.ServerCertHostMappingTable, d *schema.ResourceData, key string) {
+	if _, ok := d.GetOk(key); ok {
+		table := d.Get(key).(*schema.Set).List()
+		*target, _ = expandServerCertHostMappingTable(table)
+	}
+}
+
+func expandServerCertHostMappingTable(configured []interface{}) (*stingray.ServerCertHostMappingTable, error) {
+	table := make(stingray.ServerCertHostMappingTable, 0, len(configured))
+
+	for _, raw := range configured {
+		data := raw.(map[string]interface{})
+
+		s := stingray.ServerCertHostMapping{
+			Certificate: stingray.String(data["certificate"].(string)),
+			Host:        stingray.String(data["host"].(string)),
+		}
+
+		table = append(table, s)
+	}
+
+	return &table, nil
+}
+
+func flattenServerCertHostMappingTable(list stingray.ServerCertHostMappingTable) []map[string]interface{} {
+	result := make([]map[string]interface{}, 0, len(list))
+	for _, i := range list {
+		s := map[string]interface{}{
+			"certificate": *i.Certificate,
+			"host":        *i.Host,
+		}
+		result = append(result, s)
+	}
+	return result
 }
