@@ -10,7 +10,7 @@ load balancer.
 
 ```
 provider "stingray" {
-	host = "https://example:9070""
+	host = "https://example:9070"
 	username = "username"
 	password = "password"
 }
