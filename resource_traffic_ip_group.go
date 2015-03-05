@@ -173,13 +173,15 @@ func resourceTrafficIPGroupSet(d *schema.ResourceData, meta interface{}) error {
 	setStringSet(&r.Basic.Slaves, d, "slaves")
 
 	ns := meta.(*providerConfig).validNetworks
-	for _, s := range *r.Basic.IPAddresses {
-		ip := net.ParseIP(s)
-		if ip == nil {
-			return fmt.Errorf("Invalid IP address: %s", s)
-		}
-		if !ns.Contains(ip) {
-			return fmt.Errorf("IP address %s is not in the valid networks", ip)
+	if len(ns) > 0 && *r.Basic.IPAddresses != nil {
+		for _, s := range *r.Basic.IPAddresses {
+			ip := net.ParseIP(s)
+			if ip == nil {
+				return fmt.Errorf("Invalid IP address: %s", s)
+			}
+			if !ns.Contains(ip) {
+				return fmt.Errorf("IP address %s is not in the valid networks", ip)
+			}
 		}
 	}
 
