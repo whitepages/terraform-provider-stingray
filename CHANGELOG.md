@@ -1,3 +1,6 @@
+* virtual_server: Support ssl_server_cert_host_mapping
+* traffic_ip_group: Only parse IP addresses if `valid_networks` is set
+
 ## 1.4.2
 
 * Fix problem where default value of stingray_virtual_server
