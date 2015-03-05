@@ -1,3 +1,8 @@
+## 1.4.2
+
+* Fix problem where default value of stingray_virtual_server
+  listen_any was not being set
+
 ## 1.4.1
 
 * Update godeps for terraform v0.3.7
