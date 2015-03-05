@@ -10,7 +10,7 @@ load balancer.
 
 ```
 provider "stingray" {
-	host = "https://example:9070"
+	url = "https://example:9070"
 	username = "username"
 	password = "password"
 }
@@ -18,7 +18,7 @@ provider "stingray" {
 
 ## Argument Reference
 
-* `host` - The protocol, host name, and port for the Stingray REST API
+* `url` - The protocol, host name, and port for the Stingray REST API
 * `username` - The username for authenticating against the API
 * `password` - The password for authenticating against the API
 * `valid_networks` - A comma separated list of valid traffic IP
