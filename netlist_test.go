@@ -29,10 +29,10 @@ var parseCIDRTests = []struct {
 	{[]string{"abcd:2345::/24"}, netList{{IP: net.ParseIP("abcd:2300::"), Mask: net.IPMask(net.ParseIP("ffff:ff00::"))}}, nil},
 	{[]string{"2001:DB8::/48"}, netList{{IP: net.ParseIP("2001:DB8::"), Mask: net.IPMask(net.ParseIP("ffff:ffff:ffff::"))}}, nil},
 	{[]string{"2001:DB8::1/48"}, netList{{IP: net.ParseIP("2001:DB8::"), Mask: net.IPMask(net.ParseIP("ffff:ffff:ffff::"))}}, nil},
-	{[]string{"192.168.1.1/255.255.255.0"}, nil, &net.ParseError{"CIDR address", "192.168.1.1/255.255.255.0"}},
-	{[]string{"192.168.1.1/35"}, nil, &net.ParseError{"CIDR address", "192.168.1.1/35"}},
-	{[]string{"2001:db8::1/-1"}, netList{}, &net.ParseError{"CIDR address", "2001:db8::1/-1"}},
-	{[]string{""}, netList{}, &net.ParseError{"CIDR address", ""}},
+	{[]string{"192.168.1.1/255.255.255.0"}, nil, &net.ParseError{Type: "CIDR address", Text: "192.168.1.1/255.255.255.0"}},
+	{[]string{"192.168.1.1/35"}, nil, &net.ParseError{Type: "CIDR address", Text: "192.168.1.1/35"}},
+	{[]string{"2001:db8::1/-1"}, netList{}, &net.ParseError{Type: "CIDR address", Text: "2001:db8::1/-1"}},
+	{[]string{""}, netList{}, &net.ParseError{Type: "CIDR address", Text: ""}},
 }
 
 func TestParseCIDRList(t *testing.T) {
