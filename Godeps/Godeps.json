@@ -83,8 +83,8 @@
 		},
 		{
 			"ImportPath": "github.com/whitepages/go-stingray",
-			"Comment": "v1.0.1",
-			"Rev": "fe0bff04a2f39b9bd5a9322479dd7ec186c553c9"
+			"Comment": "v1.0.2",
+			"Rev": "6466a10df691bcc622f27962a0fecd30c4018f1a"
 		}
 	]
 }

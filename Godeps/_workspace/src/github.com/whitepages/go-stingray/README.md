@@ -1,4 +1,7 @@
-# go-stingray [![Build Status](https://secure.travis-ci.org/whitepages/go-stingray.png)](http://travis-ci.org/whitepages/go-stingray)
+# go-stingray
+
+[![GoDoc](https://godoc.org/github.com/whitepages/go-stingray?status.svg)](https://godoc.org/github.com/whitepages/go-stingray)
+[![Build Status](https://secure.travis-ci.org/whitepages/go-stingray.png)](http://travis-ci.org/whitepages/go-stingray)
 
 go-stingray is a client library for accessing the Stingray Traffic
 Manager REST API.

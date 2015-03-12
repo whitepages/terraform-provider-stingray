@@ -219,13 +219,16 @@ func String(v string) *string {
 	return &v
 }
 
-// jsonMarshal un-escapes "\u0026" to "&", since the Stingray REST API
-// does not decode this escape sequence correctly. (It results in
-// "u0026".)
+// jsonMarshal un-escapes certain "\uXXXX" escape sequences since the
+// Stingray REST API does not decode these correctly. The
+// json.Unmarshal function creates these escape sequences for &, <,
+// and >.
 func jsonMarshal(v interface{}) ([]byte, error) {
 	b, err := json.Marshal(v)
 
 	b = bytes.Replace(b, []byte("\\u0026"), []byte("&"), -1)
+	b = bytes.Replace(b, []byte("\\u003c"), []byte("<"), -1)
+	b = bytes.Replace(b, []byte("\\u003e"), []byte(">"), -1)
 
 	return b, err
 }
