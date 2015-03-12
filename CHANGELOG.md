@@ -1,3 +1,7 @@
+## 1.5.1
+
+* Update godeps for go-stingray v1.0.2
+
 ## 1.5.0
 
 * virtual_server: Support ssl_server_cert_host_mapping
