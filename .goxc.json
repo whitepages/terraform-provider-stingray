@@ -1,5 +1,5 @@
 {
 	"BuildConstraints": "!plan9",
-	"PackageVersion": "1.5.1",
+	"PackageVersion": "1.5.2",
 	"ConfigVersion": "0.9"
 }
