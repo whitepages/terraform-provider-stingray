@@ -1,3 +1,7 @@
+## 1.1.0
+
+* Switch to v3.2 of the REST API
+
 ## 1.0.2
 
 * Un-escape \u003c and \u003e to < and >

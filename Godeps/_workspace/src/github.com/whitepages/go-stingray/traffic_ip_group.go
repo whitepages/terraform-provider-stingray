@@ -13,17 +13,19 @@ type TrafficIPGroup struct {
 
 type TrafficIPGroupProperties struct {
 	Basic struct {
-		Enabled        *bool           `json:"enabled,omitempty"`
-		HashSourcePort *bool           `json:"hash_source_port,omitempty"`
-		IPMapping      *IPMappingTable `json:"ip_mapping,omitempty"`
-		IPAddresses    *[]string       `json:"ipaddresses,omitempty"`
-		KeepTogether   *bool           `json:"keeptogether,omitempty"`
-		Location       *int            `json:"location,omitempty"`
-		Machines       *[]string       `json:"machines,omitempty"`
-		Mode           *string         `json:"mode,omitempty"`
-		Multicast      *string         `json:"multicast,omitempty"`
-		Note           *string         `json:"note,omitempty"`
-		Slaves         *[]string       `json:"slaves,omitempty"`
+		Enabled                      *bool           `json:"enabled,omitempty"`
+		HashSourcePort               *bool           `json:"hash_source_port,omitempty"`
+		IPMapping                    *IPMappingTable `json:"ip_mapping,omitempty"`
+		IPAddresses                  *[]string       `json:"ipaddresses,omitempty"`
+		KeepTogether                 *bool           `json:"keeptogether,omitempty"`
+		Location                     *int            `json:"location,omitempty"`
+		Machines                     *[]string       `json:"machines,omitempty"`
+		Mode                         *string         `json:"mode,omitempty"`
+		Multicast                    *string         `json:"multicast,omitempty"`
+		Note                         *string         `json:"note,omitempty"`
+		RHIOSPFV2MetricBase          *int            `json:"rhi_ospfv2_metric_base,omitempty"`
+		RHIOSPFV2PassiveMetricOffset *int            `json:"rhi_ospfv2_passive_metric_offset,omitempty"`
+		Slaves                       *[]string       `json:"slaves,omitempty"`
 	} `json:"basic"`
 }
 

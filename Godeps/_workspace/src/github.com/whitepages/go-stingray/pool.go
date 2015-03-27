@@ -42,6 +42,7 @@ type PoolProperties struct {
 		MaxIdleConnectionsPerNode     *int        `json:"max_idle_connections_pernode,omitempty"`
 		MaxTimedOutConnectionAttempts *int        `json:"max_timed_out_connection_attempts,omitempty"`
 		Monitors                      *[]string   `json:"monitors,omitempty"`
+		NodeCloseWithRST              *bool       `json:"node_close_with_rst,omitempty"`
 		NodeConnectionAttempts        *int        `json:"node_connection_attempts,omitempty"`
 		NodesTable                    *NodesTable `json:"nodes_table,omitempty"`
 		PassiveMonitoring             *bool       `json:"passive_monitoring,omitempty"`
@@ -56,6 +57,15 @@ type PoolProperties struct {
 		MaxReplyTime          *int `json:"max_reply_time,omitempty"`
 		QueueTimeout          *int `json:"queue_timeout,omitempty"`
 	} `json:"connection"`
+	DNS struct {
+		EDNSUDPSize *int `json:"edns_udpsize,omitempty"`
+		MaxUDPSize  *int `json:"max_udpsize,omitempty"`
+	} `json:"dns"`
+	DNSAutoscale struct {
+		Enabled   *bool     `json:"enabled,omitempty"`
+		Hostnames *[]string `json:"hostnames,omitempty"`
+		Port      *int      `json:"port,omitempty"`
+	} `json:"dns_autoscale"`
 	FTP struct {
 		SupportRFC2428 *bool `json:"support_rfc_2428,omitempty"`
 	} `json:"ftp"`
@@ -63,6 +73,10 @@ type PoolProperties struct {
 		Keepalive              *bool `json:"keepalive,omitempty"`
 		KeepaliveNonIdempotent *bool `json:"keepalive_non_idempotent,omitempty"`
 	} `json:"http"`
+	KerberosProtocolTransition struct {
+		Principal *string `json:"principal,omitempty"`
+		Target    *string `json:"target,omitempty"`
+	} `json:"kerberos_protocol_transition"`
 	LoadBalancing struct {
 		Algorithm       *string `json:"algorithm,omitempty"`
 		PriorityEnabled *bool   `json:"priority_enabled,omitempty"`
@@ -76,17 +90,19 @@ type PoolProperties struct {
 		SendStartTLS *bool `json:"send_starttls,omitempty"`
 	} `json:"smtp"`
 	SSL struct {
-		ClientAuth      *bool   `json:"client_auth,omitempty"`
-		Enable          *bool   `json:"enable,omitempty"`
-		Enhance         *bool   `json:"enhance,omitempty"`
-		SendCloseAlerts *bool   `json:"send_close_alerts,omitempty"`
-		ServerName      *bool   `json:"server_name,omitempty"`
-		SSLCiphers      *string `json:"ssl_ciphers,omitempty"`
-		SSLSupportSSL2  *string `json:"ssl_support_ssl2,omitempty"`
-		SSLSupportSSL3  *string `json:"ssl_support_ssl3,omitempty"`
-		SSLSupportTLS1  *string `json:"ssl_support_tls1,omitempty"`
-		SSLSupportTLS11 *string `json:"ssl_support_tls1_1,omitempty"`
-		StrictVerify    *bool   `json:"strict_verify,omitempty"`
+		ClientAuth          *bool   `json:"client_auth,omitempty"`
+		Enable              *bool   `json:"enable,omitempty"`
+		Enhance             *bool   `json:"enhance,omitempty"`
+		SendCloseAlerts     *bool   `json:"send_close_alerts,omitempty"`
+		ServerName          *bool   `json:"server_name,omitempty"`
+		SignatureAlgorithms *string `json:"signature_algorithms,omitempty"`
+		SSLCiphers          *string `json:"ssl_ciphers,omitempty"`
+		SSLSupportSSL2      *string `json:"ssl_support_ssl2,omitempty"`
+		SSLSupportSSL3      *string `json:"ssl_support_ssl3,omitempty"`
+		SSLSupportTLS1      *string `json:"ssl_support_tls1,omitempty"`
+		SSLSupportTLS11     *string `json:"ssl_support_tls1_1,omitempty"`
+		SSLSupportTLS12     *string `json:"ssl_support_tls1_2,omitempty"`
+		StrictVerify        *bool   `json:"strict_verify,omitempty"`
 	} `json:"ssl"`
 	TCP struct {
 		Nagle *bool `json:"nagle,omitempty"`
