@@ -1,3 +1,7 @@
+## 1.5.2
+
+* Update godeps for go-stingray v1.1.0
+
 ## 1.5.1
 
 * Update godeps for go-stingray v1.0.2
