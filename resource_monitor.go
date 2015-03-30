@@ -73,7 +73,6 @@ func resourceMonitor() *schema.Resource {
 			"script_arguments": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
-				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"description": &schema.Schema{
