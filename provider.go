@@ -140,10 +140,9 @@ func setString(target **string, d *schema.ResourceData, key string) {
 
 // setStringList sets the target if the key is set in the schema config
 func setStringList(target **[]string, d *schema.ResourceData, key string) {
-	if v, ok := d.GetOk(key); ok {
-		list := expandStringList(v.([]interface{}))
-		*target = &list
-	}
+	v := d.Get(key)
+	list := expandStringList(v.([]interface{}))
+	*target = &list
 }
 
 // setStringSet sets the target if the key is set in the schema config
