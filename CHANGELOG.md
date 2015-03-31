@@ -1,3 +1,8 @@
+## Unreleased
+
+* TypeList parameters (monitor/script_arguments and
+  virtual_server/request_rules, response_rules) are no longer computed
+
 ## 1.5.2
 
 * Update godeps for go-stingray v1.1.0
