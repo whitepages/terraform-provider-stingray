@@ -73,7 +73,6 @@ func resourceMonitor() *schema.Resource {
 			"script_arguments": &schema.Schema{
 				Type:     schema.TypeList,
 				Optional: true,
-				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"description": &schema.Schema{
@@ -258,17 +257,15 @@ func resourceMonitorSet(d *schema.ResourceData, meta interface{}) error {
 }
 
 func setScriptArgumentsTable(target **stingray.ScriptArgumentsTable, d *schema.ResourceData, key string) {
-	if _, ok := d.GetOk(key); ok {
-		t := stingray.ScriptArgumentsTable{}
-		count := d.Get(key + ".#").(int)
-		for i := 0; i < count; i++ {
-			a := stingray.ScriptArgument{}
-			prefix := fmt.Sprintf("%s.%d", key, i)
-			setString(&a.Description, d, prefix+".description")
-			a.Name = stingray.String(d.Get(prefix + ".name").(string))
-			a.Value = stingray.String(d.Get(prefix + ".value").(string))
-			t = append(t, a)
-		}
-		*target = &t
+	t := stingray.ScriptArgumentsTable{}
+	count := d.Get(key + ".#").(int)
+	for i := 0; i < count; i++ {
+		a := stingray.ScriptArgument{}
+		prefix := fmt.Sprintf("%s.%d", key, i)
+		setString(&a.Description, d, prefix+".description")
+		a.Name = stingray.String(d.Get(prefix + ".name").(string))
+		a.Value = stingray.String(d.Get(prefix + ".value").(string))
+		t = append(t, a)
 	}
+	*target = &t
 }
