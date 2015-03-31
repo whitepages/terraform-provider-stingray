@@ -1,4 +1,4 @@
-## Unreleased
+## 2.0.0
 
 * TypeList parameters (monitor/script_arguments and
   virtual_server/request_rules, response_rules) are no longer computed
