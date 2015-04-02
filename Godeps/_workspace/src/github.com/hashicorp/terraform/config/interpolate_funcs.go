@@ -4,21 +4,29 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/config/lang/ast"
+	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/mitchellh/go-homedir"
 )
 
-// Funcs is the mapping of built-in functions for configuration.
-var Funcs map[string]ast.Function
+var // Funcs is the mapping of built-in functions for configuration.
+Funcs map[string]ast.Function
 
 func init() {
 	Funcs = map[string]ast.Function{
-		"concat":  interpolationFuncConcat(),
 		"file":    interpolationFuncFile(),
+		"format":  interpolationFuncFormat(),
 		"join":    interpolationFuncJoin(),
 		"element": interpolationFuncElement(),
+		"replace": interpolationFuncReplace(),
+		"split":   interpolationFuncSplit(),
+
+		// Concat is a little useless now since we supported embeddded
+		// interpolations but we keep it around for backwards compat reasons.
+		"concat": interpolationFuncConcat(),
 	}
 }
 
@@ -50,12 +58,31 @@ func interpolationFuncFile() ast.Function {
 		ArgTypes:   []ast.Type{ast.TypeString},
 		ReturnType: ast.TypeString,
 		Callback: func(args []interface{}) (interface{}, error) {
-			data, err := ioutil.ReadFile(args[0].(string))
+			path, err := homedir.Expand(args[0].(string))
+			if err != nil {
+				return "", err
+			}
+			data, err := ioutil.ReadFile(path)
 			if err != nil {
 				return "", err
 			}
 
 			return string(data), nil
+		},
+	}
+}
+
+// interpolationFuncFormat implements the "replace" function that does
+// string replacement.
+func interpolationFuncFormat() ast.Function {
+	return ast.Function{
+		ArgTypes:     []ast.Type{ast.TypeString},
+		Variadic:     true,
+		VariadicType: ast.TypeAny,
+		ReturnType:   ast.TypeString,
+		Callback: func(args []interface{}) (interface{}, error) {
+			format := args[0].(string)
+			return fmt.Sprintf(format, args[1:]...), nil
 		},
 	}
 }
@@ -74,6 +101,45 @@ func interpolationFuncJoin() ast.Function {
 			}
 
 			return strings.Join(list, args[0].(string)), nil
+		},
+	}
+}
+
+// interpolationFuncReplace implements the "replace" function that does
+// string replacement.
+func interpolationFuncReplace() ast.Function {
+	return ast.Function{
+		ArgTypes:   []ast.Type{ast.TypeString, ast.TypeString, ast.TypeString},
+		ReturnType: ast.TypeString,
+		Callback: func(args []interface{}) (interface{}, error) {
+			s := args[0].(string)
+			search := args[1].(string)
+			replace := args[2].(string)
+
+			// We search/replace using a regexp if the string is surrounded
+			// in forward slashes.
+			if len(search) > 1 && search[0] == '/' && search[len(search)-1] == '/' {
+				re, err := regexp.Compile(search[1 : len(search)-1])
+				if err != nil {
+					return nil, err
+				}
+
+				return re.ReplaceAllString(s, replace), nil
+			}
+
+			return strings.Replace(s, search, replace, -1), nil
+		},
+	}
+}
+
+// interpolationFuncSplit implements the "split" function that allows
+// strings to split into multi-variable values
+func interpolationFuncSplit() ast.Function {
+	return ast.Function{
+		ArgTypes:   []ast.Type{ast.TypeString, ast.TypeString},
+		ReturnType: ast.TypeString,
+		Callback: func(args []interface{}) (interface{}, error) {
+			return strings.Replace(args[1].(string), args[0].(string), InterpSplitDelim, -1), nil
 		},
 	}
 }

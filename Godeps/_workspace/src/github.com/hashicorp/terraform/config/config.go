@@ -28,6 +28,7 @@ type Config struct {
 	// any meaningful directory.
 	Dir string
 
+	Atlas           *AtlasConfig
 	Modules         []*Module
 	ProviderConfigs []*ProviderConfig
 	Resources       []*Resource
@@ -37,6 +38,13 @@ type Config struct {
 	// The fields below can be filled in by loaders for validation
 	// purposes.
 	unknownKeys []string
+}
+
+// AtlasConfig is the configuration for building in HashiCorp's Atlas.
+type AtlasConfig struct {
+	Name    string
+	Include []string
+	Exclude []string
 }
 
 // Module is a module used within a configuration.
@@ -379,10 +387,55 @@ func (c *Config) Validate() error {
 
 		// Verify depends on points to resources that all exist
 		for _, d := range r.DependsOn {
+			// Check if we contain interpolations
+			rc, err := NewRawConfig(map[string]interface{}{
+				"value": d,
+			})
+			if err == nil && len(rc.Variables) > 0 {
+				errs = append(errs, fmt.Errorf(
+					"%s: depends on value cannot contain interpolations: %s",
+					n, d))
+				continue
+			}
+
 			if _, ok := resources[d]; !ok {
 				errs = append(errs, fmt.Errorf(
 					"%s: resource depends on non-existent resource '%s'",
 					n, d))
+			}
+		}
+
+		// Verify provisioners don't contain any splats
+		for _, p := range r.Provisioners {
+			// This validation checks that there are now splat variables
+			// referencing ourself. This currently is not allowed.
+
+			for _, v := range p.ConnInfo.Variables {
+				rv, ok := v.(*ResourceVariable)
+				if !ok {
+					continue
+				}
+
+				if rv.Multi && rv.Index == -1 && rv.Type == r.Type && rv.Name == r.Name {
+					errs = append(errs, fmt.Errorf(
+						"%s: connection info cannot contain splat variable "+
+							"referencing itself", n))
+					break
+				}
+			}
+
+			for _, v := range p.RawConfig.Variables {
+				rv, ok := v.(*ResourceVariable)
+				if !ok {
+					continue
+				}
+
+				if rv.Multi && rv.Index == -1 && rv.Type == r.Type && rv.Name == r.Name {
+					errs = append(errs, fmt.Errorf(
+						"%s: connection info cannot contain splat variable "+
+							"referencing itself", n))
+					break
+				}
 			}
 		}
 	}
@@ -429,6 +482,22 @@ func (c *Config) Validate() error {
 		if err := reflectwalk.Walk(rc.Raw, walker); err != nil {
 			errs = append(errs, fmt.Errorf(
 				"%s: error reading config: %s", source, err))
+		}
+	}
+
+	// Validate the self variable
+	for source, rc := range c.rawConfigs() {
+		// Ignore provisioners. This is a pretty brittle way to do this,
+		// but better than also repeating all the resources.
+		if strings.Contains(source, "provision") {
+			continue
+		}
+
+		for _, v := range rc.Variables {
+			if _, ok := v.(*SelfVariable); ok {
+				errs = append(errs, fmt.Errorf(
+					"%s: cannot contain self-reference %s", source, v.FullKey()))
+			}
 		}
 	}
 

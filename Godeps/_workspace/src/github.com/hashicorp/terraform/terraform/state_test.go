@@ -59,6 +59,458 @@ func TestStateAddModule(t *testing.T) {
 	}
 }
 
+func TestStateModuleOrphans(t *testing.T) {
+	state := &State{
+		Modules: []*ModuleState{
+			&ModuleState{
+				Path: RootModulePath,
+			},
+			&ModuleState{
+				Path: []string{RootModuleName, "foo"},
+			},
+			&ModuleState{
+				Path: []string{RootModuleName, "bar"},
+			},
+		},
+	}
+
+	config := testModule(t, "state-module-orphans").Config()
+	actual := state.ModuleOrphans(RootModulePath, config)
+	expected := [][]string{
+		[]string{RootModuleName, "foo"},
+	}
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Fatalf("bad: %#v", actual)
+	}
+}
+
+func TestStateModuleOrphans_nilConfig(t *testing.T) {
+	state := &State{
+		Modules: []*ModuleState{
+			&ModuleState{
+				Path: RootModulePath,
+			},
+			&ModuleState{
+				Path: []string{RootModuleName, "foo"},
+			},
+			&ModuleState{
+				Path: []string{RootModuleName, "bar"},
+			},
+		},
+	}
+
+	actual := state.ModuleOrphans(RootModulePath, nil)
+	expected := [][]string{
+		[]string{RootModuleName, "foo"},
+		[]string{RootModuleName, "bar"},
+	}
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Fatalf("bad: %#v", actual)
+	}
+}
+
+func TestStateEqual(t *testing.T) {
+	cases := []struct {
+		Result   bool
+		One, Two *State
+	}{
+		// Nils
+		{
+			false,
+			nil,
+			&State{Version: 2},
+		},
+
+		{
+			true,
+			nil,
+			nil,
+		},
+
+		// Different versions
+		{
+			false,
+			&State{Version: 5},
+			&State{Version: 2},
+		},
+
+		// Different modules
+		{
+			false,
+			&State{
+				Modules: []*ModuleState{
+					&ModuleState{
+						Path: RootModulePath,
+					},
+				},
+			},
+			&State{},
+		},
+
+		{
+			true,
+			&State{
+				Modules: []*ModuleState{
+					&ModuleState{
+						Path: RootModulePath,
+					},
+				},
+			},
+			&State{
+				Modules: []*ModuleState{
+					&ModuleState{
+						Path: RootModulePath,
+					},
+				},
+			},
+		},
+	}
+
+	for i, tc := range cases {
+		if tc.One.Equal(tc.Two) != tc.Result {
+			t.Fatalf("Bad: %d\n\n%s\n\n%s", i, tc.One.String(), tc.Two.String())
+		}
+		if tc.Two.Equal(tc.One) != tc.Result {
+			t.Fatalf("Bad: %d\n\n%s\n\n%s", i, tc.One.String(), tc.Two.String())
+		}
+	}
+}
+
+func TestStateIncrementSerialMaybe(t *testing.T) {
+	cases := map[string]struct {
+		S1, S2 *State
+		Serial int64
+	}{
+		"S2 is nil": {
+			&State{},
+			nil,
+			0,
+		},
+		"S2 is identical": {
+			&State{},
+			&State{},
+			0,
+		},
+		"S2 is different": {
+			&State{},
+			&State{
+				Modules: []*ModuleState{
+					&ModuleState{Path: rootModulePath},
+				},
+			},
+			1,
+		},
+		"S1 serial is higher": {
+			&State{Serial: 5},
+			&State{
+				Serial: 3,
+				Modules: []*ModuleState{
+					&ModuleState{Path: rootModulePath},
+				},
+			},
+			5,
+		},
+	}
+
+	for name, tc := range cases {
+		tc.S1.IncrementSerialMaybe(tc.S2)
+		if tc.S1.Serial != tc.Serial {
+			t.Fatalf("Bad: %s\nGot: %d", name, tc.S1.Serial)
+		}
+	}
+}
+
+func TestResourceStateEqual(t *testing.T) {
+	cases := []struct {
+		Result   bool
+		One, Two *ResourceState
+	}{
+		// Different types
+		{
+			false,
+			&ResourceState{Type: "foo"},
+			&ResourceState{Type: "bar"},
+		},
+
+		// Different dependencies
+		{
+			false,
+			&ResourceState{Dependencies: []string{"foo"}},
+			&ResourceState{Dependencies: []string{"bar"}},
+		},
+
+		{
+			false,
+			&ResourceState{Dependencies: []string{"foo", "bar"}},
+			&ResourceState{Dependencies: []string{"foo"}},
+		},
+
+		{
+			true,
+			&ResourceState{Dependencies: []string{"bar", "foo"}},
+			&ResourceState{Dependencies: []string{"foo", "bar"}},
+		},
+
+		// Different primaries
+		{
+			false,
+			&ResourceState{Primary: nil},
+			&ResourceState{Primary: &InstanceState{ID: "foo"}},
+		},
+
+		{
+			true,
+			&ResourceState{Primary: &InstanceState{ID: "foo"}},
+			&ResourceState{Primary: &InstanceState{ID: "foo"}},
+		},
+
+		// Different tainted
+		{
+			false,
+			&ResourceState{
+				Tainted: nil,
+			},
+			&ResourceState{
+				Tainted: []*InstanceState{
+					&InstanceState{ID: "foo"},
+				},
+			},
+		},
+
+		{
+			true,
+			&ResourceState{
+				Tainted: []*InstanceState{
+					&InstanceState{ID: "foo"},
+				},
+			},
+			&ResourceState{
+				Tainted: []*InstanceState{
+					&InstanceState{ID: "foo"},
+				},
+			},
+		},
+
+		{
+			true,
+			&ResourceState{
+				Tainted: []*InstanceState{
+					&InstanceState{ID: "foo"},
+					nil,
+				},
+			},
+			&ResourceState{
+				Tainted: []*InstanceState{
+					&InstanceState{ID: "foo"},
+				},
+			},
+		},
+	}
+
+	for i, tc := range cases {
+		if tc.One.Equal(tc.Two) != tc.Result {
+			t.Fatalf("Bad: %d\n\n%s\n\n%s", i, tc.One.String(), tc.Two.String())
+		}
+		if tc.Two.Equal(tc.One) != tc.Result {
+			t.Fatalf("Bad: %d\n\n%s\n\n%s", i, tc.One.String(), tc.Two.String())
+		}
+	}
+}
+
+func TestResourceStateTaint(t *testing.T) {
+	cases := map[string]struct {
+		Input  *ResourceState
+		Output *ResourceState
+	}{
+		"no primary": {
+			&ResourceState{},
+			&ResourceState{},
+		},
+
+		"primary, no tainted": {
+			&ResourceState{
+				Primary: &InstanceState{ID: "foo"},
+			},
+			&ResourceState{
+				Tainted: []*InstanceState{
+					&InstanceState{ID: "foo"},
+				},
+			},
+		},
+
+		"primary, with tainted": {
+			&ResourceState{
+				Primary: &InstanceState{ID: "foo"},
+				Tainted: []*InstanceState{
+					&InstanceState{ID: "bar"},
+				},
+			},
+			&ResourceState{
+				Tainted: []*InstanceState{
+					&InstanceState{ID: "bar"},
+					&InstanceState{ID: "foo"},
+				},
+			},
+		},
+	}
+
+	for k, tc := range cases {
+		tc.Input.Taint()
+		if !reflect.DeepEqual(tc.Input, tc.Output) {
+			t.Fatalf(
+				"Failure: %s\n\nExpected: %#v\n\nGot: %#v",
+				k, tc.Output, tc.Input)
+		}
+	}
+}
+
+func TestInstanceStateEmpty(t *testing.T) {
+	cases := map[string]struct {
+		In     *InstanceState
+		Result bool
+	}{
+		"nil is empty": {
+			nil,
+			true,
+		},
+		"non-nil but without ID is empty": {
+			&InstanceState{},
+			true,
+		},
+		"with ID is not empty": {
+			&InstanceState{
+				ID: "i-abc123",
+			},
+			false,
+		},
+	}
+
+	for tn, tc := range cases {
+		if tc.In.Empty() != tc.Result {
+			t.Fatalf("%q expected %#v to be empty: %#v", tn, tc.In, tc.Result)
+		}
+	}
+}
+
+func TestInstanceStateEqual(t *testing.T) {
+	cases := []struct {
+		Result   bool
+		One, Two *InstanceState
+	}{
+		// Nils
+		{
+			false,
+			nil,
+			&InstanceState{},
+		},
+
+		{
+			false,
+			&InstanceState{},
+			nil,
+		},
+
+		// Different IDs
+		{
+			false,
+			&InstanceState{ID: "foo"},
+			&InstanceState{ID: "bar"},
+		},
+
+		// Different Attributes
+		{
+			false,
+			&InstanceState{Attributes: map[string]string{"foo": "bar"}},
+			&InstanceState{Attributes: map[string]string{"foo": "baz"}},
+		},
+
+		// Different Attribute keys
+		{
+			false,
+			&InstanceState{Attributes: map[string]string{"foo": "bar"}},
+			&InstanceState{Attributes: map[string]string{"bar": "baz"}},
+		},
+
+		{
+			false,
+			&InstanceState{Attributes: map[string]string{"bar": "baz"}},
+			&InstanceState{Attributes: map[string]string{"foo": "bar"}},
+		},
+	}
+
+	for i, tc := range cases {
+		if tc.One.Equal(tc.Two) != tc.Result {
+			t.Fatalf("Bad: %d\n\n%s\n\n%s", i, tc.One.String(), tc.Two.String())
+		}
+	}
+}
+
+func TestStateEmpty(t *testing.T) {
+	cases := []struct {
+		In     *State
+		Result bool
+	}{
+		{
+			nil,
+			true,
+		},
+		{
+			&State{},
+			true,
+		},
+		{
+			&State{
+				Remote: &RemoteState{Type: "foo"},
+			},
+			true,
+		},
+		{
+			&State{
+				Modules: []*ModuleState{
+					&ModuleState{},
+				},
+			},
+			false,
+		},
+	}
+
+	for i, tc := range cases {
+		if tc.In.Empty() != tc.Result {
+			t.Fatalf("bad %d %#v:\n\n%#v", i, tc.Result, tc.In)
+		}
+	}
+}
+
+func TestStateIsRemote(t *testing.T) {
+	cases := []struct {
+		In     *State
+		Result bool
+	}{
+		{
+			nil,
+			false,
+		},
+		{
+			&State{},
+			false,
+		},
+		{
+			&State{
+				Remote: &RemoteState{Type: "foo"},
+			},
+			true,
+		},
+	}
+
+	for i, tc := range cases {
+		if tc.In.IsRemote() != tc.Result {
+			t.Fatalf("bad %d %#v:\n\n%#v", i, tc.Result, tc.In)
+		}
+	}
+}
+
 func TestInstanceState_MergeDiff(t *testing.T) {
 	is := InstanceState{
 		ID: "foo",
@@ -220,15 +672,6 @@ func TestReadWriteState(t *testing.T) {
 		t.Fatalf("bad version number: %d", state.Version)
 	}
 
-	// Verify the serial number is incremented
-	if state.Serial != 10 {
-		t.Fatalf("bad serial: %d", state.Serial)
-	}
-
-	// Remove the changes or the checksum will fail
-	state.Version = 0
-	state.Serial = 9
-
 	// Checksum after the write
 	chksumAfter := checksumStruct(t, state)
 	if chksumAfter != chksum {
@@ -239,10 +682,6 @@ func TestReadWriteState(t *testing.T) {
 	if err != nil {
 		t.Fatalf("err: %s", err)
 	}
-
-	// Verify the changes came through
-	state.Version = StateVersion
-	state.Serial = 10
 
 	// ReadState should not restore sensitive information!
 	mod := state.RootModule()

@@ -109,6 +109,13 @@ func TestConfigValidate_countVarInvalid(t *testing.T) {
 	}
 }
 
+func TestConfigValidate_dependsOnVar(t *testing.T) {
+	c := testConfig(t, "validate-depends-on-var")
+	if err := c.Validate(); err == nil {
+		t.Fatal("should not be valid")
+	}
+}
+
 func TestConfigValidate_dupModule(t *testing.T) {
 	c := testConfig(t, "validate-dup-module")
 	if err := c.Validate(); err == nil {
@@ -174,6 +181,48 @@ func TestConfigValidate_pathVar(t *testing.T) {
 
 func TestConfigValidate_pathVarInvalid(t *testing.T) {
 	c := testConfig(t, "validate-path-var-invalid")
+	if err := c.Validate(); err == nil {
+		t.Fatal("should not be valid")
+	}
+}
+
+func TestConfigValidate_provConnSplatOther(t *testing.T) {
+	c := testConfig(t, "validate-prov-conn-splat-other")
+	if err := c.Validate(); err != nil {
+		t.Fatalf("should be valid: %s", err)
+	}
+}
+
+func TestConfigValidate_provConnSplatSelf(t *testing.T) {
+	c := testConfig(t, "validate-prov-conn-splat-self")
+	if err := c.Validate(); err == nil {
+		t.Fatal("should not be valid")
+	}
+}
+
+func TestConfigValidate_provSplatOther(t *testing.T) {
+	c := testConfig(t, "validate-prov-splat-other")
+	if err := c.Validate(); err != nil {
+		t.Fatalf("should be valid: %s", err)
+	}
+}
+
+func TestConfigValidate_provSplatSelf(t *testing.T) {
+	c := testConfig(t, "validate-prov-splat-self")
+	if err := c.Validate(); err == nil {
+		t.Fatal("should not be valid")
+	}
+}
+
+func TestConfigValidate_resourceProvVarSelf(t *testing.T) {
+	c := testConfig(t, "validate-resource-prov-self")
+	if err := c.Validate(); err != nil {
+		t.Fatalf("should be valid: %s", err)
+	}
+}
+
+func TestConfigValidate_resourceVarSelf(t *testing.T) {
+	c := testConfig(t, "validate-resource-self")
 	if err := c.Validate(); err == nil {
 		t.Fatal("should not be valid")
 	}
