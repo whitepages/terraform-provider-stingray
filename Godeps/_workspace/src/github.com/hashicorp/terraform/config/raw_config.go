@@ -83,6 +83,29 @@ func (r *RawConfig) Config() map[string]interface{} {
 func (r *RawConfig) Interpolate(vs map[string]ast.Variable) error {
 	config := langEvalConfig(vs)
 	return r.interpolate(func(root ast.Node) (string, error) {
+		// We detect the variables again and check if the value of any
+		// of the variables is the computed value. If it is, then we
+		// treat this entire value as computed.
+		//
+		// We have to do this here before the `lang.Eval` because
+		// if any of the variables it depends on are computed, then
+		// the interpolation can fail at runtime for other reasons. Example:
+		// `${count.index+1}`: in a world where `count.index` is computed,
+		// this would fail a type check since the computed placeholder is
+		// a string, but realistically the whole value is just computed.
+		vars, err := DetectVariables(root)
+		if err != nil {
+			return "", err
+		}
+		for _, v := range vars {
+			varVal, ok := vs[v.FullKey()]
+			if ok && varVal.Value == UnknownVariableValue {
+				return UnknownVariableValue, nil
+			}
+		}
+
+		// None of the variables we need are computed, meaning we should
+		// be able to properly evaluate.
 		out, _, err := lang.Eval(root, config)
 		if err != nil {
 			return "", err
@@ -90,6 +113,51 @@ func (r *RawConfig) Interpolate(vs map[string]ast.Variable) error {
 
 		return out.(string), nil
 	})
+}
+
+// Merge merges another RawConfig into this one (overriding any conflicting
+// values in this config) and returns a new config. The original config
+// is not modified.
+func (r *RawConfig) Merge(other *RawConfig) *RawConfig {
+	// Merge the raw configurations
+	raw := make(map[string]interface{})
+	for k, v := range r.Raw {
+		raw[k] = v
+	}
+	for k, v := range other.Raw {
+		raw[k] = v
+	}
+
+	// Create the result
+	result, err := NewRawConfig(raw)
+	if err != nil {
+		panic(err)
+	}
+
+	// Merge the interpolated results
+	result.config = make(map[string]interface{})
+	for k, v := range r.config {
+		result.config[k] = v
+	}
+	for k, v := range other.config {
+		result.config[k] = v
+	}
+
+	// Build the unknown keys
+	unknownKeys := make(map[string]struct{})
+	for _, k := range r.unknownKeys {
+		unknownKeys[k] = struct{}{}
+	}
+	for _, k := range other.unknownKeys {
+		unknownKeys[k] = struct{}{}
+	}
+
+	result.unknownKeys = make([]string, 0, len(unknownKeys))
+	for k, _ := range unknownKeys {
+		result.unknownKeys = append(result.unknownKeys, k)
+	}
+
+	return result
 }
 
 func (r *RawConfig) init() error {

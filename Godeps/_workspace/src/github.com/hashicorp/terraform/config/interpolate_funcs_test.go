@@ -70,6 +70,42 @@ func TestInterpolateFuncFile(t *testing.T) {
 	})
 }
 
+func TestInterpolateFuncFormat(t *testing.T) {
+	testFunction(t, testFunctionConfig{
+		Cases: []testFunctionCase{
+			{
+				`${format("hello")}`,
+				"hello",
+				false,
+			},
+
+			{
+				`${format("hello %s", "world")}`,
+				"hello world",
+				false,
+			},
+
+			{
+				`${format("hello %d", 42)}`,
+				"hello 42",
+				false,
+			},
+
+			{
+				`${format("hello %05d", 42)}`,
+				"hello 00042",
+				false,
+			},
+
+			{
+				`${format("hello %05d", 12345)}`,
+				"hello 12345",
+				false,
+			},
+		},
+	})
+}
+
 func TestInterpolateFuncJoin(t *testing.T) {
 	testFunction(t, testFunctionConfig{
 		Cases: []testFunctionCase{
@@ -101,6 +137,73 @@ func TestInterpolateFuncJoin(t *testing.T) {
 						InterpSplitDelim,
 						InterpSplitDelim)),
 				"foo.bar.baz",
+				false,
+			},
+		},
+	})
+}
+
+func TestInterpolateFuncReplace(t *testing.T) {
+	testFunction(t, testFunctionConfig{
+		Cases: []testFunctionCase{
+			// Regular search and replace
+			{
+				`${replace("hello", "hel", "bel")}`,
+				"bello",
+				false,
+			},
+
+			// Search string doesn't match
+			{
+				`${replace("hello", "nope", "bel")}`,
+				"hello",
+				false,
+			},
+
+			// Regular expression
+			{
+				`${replace("hello", "/l/", "L")}`,
+				"heLLo",
+				false,
+			},
+
+			{
+				`${replace("helo", "/(l)/", "$1$1")}`,
+				"hello",
+				false,
+			},
+
+			// Bad regexp
+			{
+				`${replace("helo", "/(l/", "$1$1")}`,
+				nil,
+				true,
+			},
+		},
+	})
+}
+
+func TestInterpolateFuncSplit(t *testing.T) {
+	testFunction(t, testFunctionConfig{
+		Cases: []testFunctionCase{
+			{
+				`${split(",")}`,
+				nil,
+				true,
+			},
+
+			{
+				`${split(",", "foo")}`,
+				"foo",
+				false,
+			},
+
+			{
+				`${split(".", "foo.bar.baz")}`,
+				fmt.Sprintf(
+					"foo%sbar%sbaz",
+					InterpSplitDelim,
+					InterpSplitDelim),
 				false,
 			},
 		},
@@ -198,7 +301,9 @@ func testFunction(t *testing.T, config testFunctionConfig) {
 		}
 
 		if !reflect.DeepEqual(out, tc.Result) {
-			t.Fatalf("%d: bad: %#v", i, out)
+			t.Fatalf(
+				"%d: bad output for input: %s\n\nOutput: %#v",
+				i, tc.Input, out)
 		}
 	}
 }
