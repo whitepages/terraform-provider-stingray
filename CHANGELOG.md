@@ -1,3 +1,7 @@
+## 2.1.0
+
+* Update godeps for terraform v0.4.0
+
 ## 2.0.0
 
 * TypeList parameters (monitor/script_arguments and
