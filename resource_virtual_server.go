@@ -46,6 +46,8 @@ func resourceVirtualServer() *schema.Resource {
 				Computed: true,
 			},
 
+			// Default value of enabled in v3.2 of the
+			// REST API is false
 			"enabled": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
