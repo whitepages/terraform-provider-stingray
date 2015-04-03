@@ -25,13 +25,13 @@ func resourceVirtualServer() *schema.Resource {
 			"connection_errors_error_file": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "Default",
 			},
 
 			"connection_keepalive_timeout": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
-				Computed: true,
+				Default:  10,
 			},
 
 			"connection_timeout": &schema.Schema{
@@ -43,7 +43,7 @@ func resourceVirtualServer() *schema.Resource {
 			"connect_timeout": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
-				Computed: true,
+				Default:  10,
 			},
 
 			// Default value of enabled in v3.2 of the
@@ -63,17 +63,18 @@ func resourceVirtualServer() *schema.Resource {
 			"gzip_include_mime": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
-				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set: func(v interface{}) int {
 					return hashcode.String(v.(string))
 				},
+				// FIXME: This is not working
+				Default: []string{"text/html", "text/plain"},
 			},
 
 			"http_location_rewrite": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "if_host_matches",
 			},
 
 			"listen_on_any": &schema.Schema{
@@ -85,7 +86,6 @@ func resourceVirtualServer() *schema.Resource {
 			"listen_on_traffic_ips": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
-				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set: func(v interface{}) int {
 					return hashcode.String(v.(string))
@@ -101,13 +101,13 @@ func resourceVirtualServer() *schema.Resource {
 			"log_filename": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "%zeushome%/zxtm/log/%v.log",
 			},
 
 			"log_format": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "%h %l %u %t \"%r\" %s %b \"%{Referer}i\" \"%{User-agent}i\"",
 			},
 
 			"log_server_connection_failures": &schema.Schema{
@@ -119,7 +119,7 @@ func resourceVirtualServer() *schema.Resource {
 			"note": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "",
 			},
 
 			"pool": &schema.Schema{
@@ -135,7 +135,7 @@ func resourceVirtualServer() *schema.Resource {
 			"protocol": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "http",
 			},
 
 			"recent_connections_save_all": &schema.Schema{
@@ -171,13 +171,12 @@ func resourceVirtualServer() *schema.Resource {
 			"ssl_server_cert_default": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "",
 			},
 
 			"ssl_server_cert_host_mapping": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
-				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"certificate": &schema.Schema{
@@ -199,7 +198,7 @@ func resourceVirtualServer() *schema.Resource {
 			"syslog_format": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "%h %l %u %t \"%r\" %s %b \"%{Referer}i\" \"%{User-agent}i\"",
 			},
 
 			"web_cache_enabled": &schema.Schema{
@@ -211,7 +210,7 @@ func resourceVirtualServer() *schema.Resource {
 			"web_cache_max_time": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
-				Computed: true,
+				Default:  600,
 			},
 		},
 	}
