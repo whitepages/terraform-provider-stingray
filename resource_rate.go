@@ -24,19 +24,19 @@ func resourceRate() *schema.Resource {
 			"max_rate_per_minute": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
-				Computed: true,
+				Default:  0,
 			},
 
 			"max_rate_per_second": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
-				Computed: true,
+				Default:  0,
 			},
 
 			"note": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "",
 			},
 		},
 	}
