@@ -1,3 +1,7 @@
+## 2.1.1
+
+* Update godeps for terraform v0.4.2
+
 ## 2.1.0
 
 * Update godeps for terraform v0.4.0
