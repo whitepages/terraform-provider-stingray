@@ -3,7 +3,7 @@ package hcl
 import (
 	"sync"
 
-	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/helper/multierror"
+	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/go-multierror"
 )
 
 // hclErrors are the errors built up from parsing. These should not

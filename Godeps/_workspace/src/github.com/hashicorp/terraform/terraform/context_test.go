@@ -1845,6 +1845,54 @@ func TestContext2Refresh_noState(t *testing.T) {
 	}
 }
 
+func TestContext2Refresh_output(t *testing.T) {
+	p := testProvider("aws")
+	m := testModule(t, "refresh-output")
+	ctx := testContext2(t, &ContextOpts{
+		Module: m,
+		Providers: map[string]ResourceProviderFactory{
+			"aws": testProviderFuncFixed(p),
+		},
+		State: &State{
+			Modules: []*ModuleState{
+				&ModuleState{
+					Path: rootModulePath,
+					Resources: map[string]*ResourceState{
+						"aws_instance.web": &ResourceState{
+							Type: "aws_instance",
+							Primary: &InstanceState{
+								ID: "foo",
+								Attributes: map[string]string{
+									"foo": "bar",
+								},
+							},
+						},
+					},
+
+					Outputs: map[string]string{
+						"foo": "foo",
+					},
+				},
+			},
+		},
+	})
+
+	p.RefreshFn = func(info *InstanceInfo, s *InstanceState) (*InstanceState, error) {
+		return s, nil
+	}
+
+	s, err := ctx.Refresh()
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+
+	actual := strings.TrimSpace(s.String())
+	expected := strings.TrimSpace(testContextRefreshOutputStr)
+	if actual != expected {
+		t.Fatalf("bad:\n\n%s\n\n%s", actual, expected)
+	}
+}
+
 func TestContext2Refresh_outputPartial(t *testing.T) {
 	p := testProvider("aws")
 	m := testModule(t, "refresh-output-partial")
@@ -2221,6 +2269,55 @@ func TestContext2Validate_moduleProviderInherit(t *testing.T) {
 
 	p.ValidateFn = func(c *ResourceConfig) ([]string, []error) {
 		return nil, c.CheckSet([]string{"set"})
+	}
+
+	w, e := c.Validate()
+	if len(w) > 0 {
+		t.Fatalf("bad: %#v", w)
+	}
+	if len(e) > 0 {
+		t.Fatalf("bad: %s", e)
+	}
+}
+
+func TestContext2Validate_moduleProviderVar(t *testing.T) {
+	m := testModule(t, "validate-module-pc-vars")
+	p := testProvider("aws")
+	c := testContext2(t, &ContextOpts{
+		Module: m,
+		Providers: map[string]ResourceProviderFactory{
+			"aws": testProviderFuncFixed(p),
+		},
+		Variables: map[string]string{
+			"provider_var": "bar",
+		},
+	})
+
+	p.ValidateFn = func(c *ResourceConfig) ([]string, []error) {
+		return nil, c.CheckSet([]string{"foo"})
+	}
+
+	w, e := c.Validate()
+	if len(w) > 0 {
+		t.Fatalf("bad: %#v", w)
+	}
+	if len(e) > 0 {
+		t.Fatalf("bad: %s", e)
+	}
+}
+
+func TestContext2Validate_moduleProviderInheritUnused(t *testing.T) {
+	m := testModule(t, "validate-module-pc-inherit-unused")
+	p := testProvider("aws")
+	c := testContext2(t, &ContextOpts{
+		Module: m,
+		Providers: map[string]ResourceProviderFactory{
+			"aws": testProviderFuncFixed(p),
+		},
+	})
+
+	p.ValidateFn = func(c *ResourceConfig) ([]string, []error) {
+		return nil, c.CheckSet([]string{"foo"})
 	}
 
 	w, e := c.Validate()
@@ -2875,6 +2972,35 @@ func TestContext2Input_providerVars(t *testing.T) {
 
 	if !reflect.DeepEqual(actual, "bar") {
 		t.Fatalf("bad: %#v", actual)
+	}
+}
+
+func TestContext2Input_providerVarsModuleInherit(t *testing.T) {
+	input := new(MockUIInput)
+	m := testModule(t, "input-provider-with-vars-and-module")
+	p := testProvider("aws")
+	p.ApplyFn = testApplyFn
+	p.DiffFn = testDiffFn
+	ctx := testContext2(t, &ContextOpts{
+		Module: m,
+		Providers: map[string]ResourceProviderFactory{
+			"aws": testProviderFuncFixed(p),
+		},
+		UIInput: input,
+	})
+
+	p.InputFn = func(i UIInput, c *ResourceConfig) (*ResourceConfig, error) {
+		if errs := c.CheckSet([]string{"access_key"}); len(errs) > 0 {
+			return c, errs[0]
+		}
+		return c, nil
+	}
+	p.ConfigureFn = func(c *ResourceConfig) error {
+		return nil
+	}
+
+	if err := ctx.Input(InputModeStd); err != nil {
+		t.Fatalf("err: %s", err)
 	}
 }
 
@@ -5944,6 +6070,16 @@ aws_instance.web: (1 tainted)
 module.child:
   aws_instance.web:
     ID = new
+`
+
+const testContextRefreshOutputStr = `
+aws_instance.web:
+  ID = foo
+  foo = bar
+
+Outputs:
+
+foo = bar
 `
 
 const testContextRefreshOutputPartialStr = `

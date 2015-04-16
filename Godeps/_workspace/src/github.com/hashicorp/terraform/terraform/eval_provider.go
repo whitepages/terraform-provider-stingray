@@ -6,6 +6,17 @@ import (
 	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/config"
 )
 
+// EvalSetProviderConfig sets the parent configuration for a provider
+// without configuring that provider, validating it, etc.
+type EvalSetProviderConfig struct {
+	Provider string
+	Config   **ResourceConfig
+}
+
+func (n *EvalSetProviderConfig) Eval(ctx EvalContext) (interface{}, error) {
+	return nil, ctx.SetProviderConfig(n.Provider, *n.Config)
+}
+
 // EvalBuildProviderConfig outputs a *ResourceConfig that is properly
 // merged with parents and inputs on top of what is configured in the file.
 type EvalBuildProviderConfig struct {
@@ -85,7 +96,7 @@ func (n *EvalGetProvider) Eval(ctx EvalContext) (interface{}, error) {
 type EvalInputProvider struct {
 	Name     string
 	Provider *ResourceProvider
-	Config   *config.RawConfig
+	Config   **ResourceConfig
 }
 
 func (n *EvalInputProvider) Eval(ctx EvalContext) (interface{}, error) {
@@ -94,8 +105,7 @@ func (n *EvalInputProvider) Eval(ctx EvalContext) (interface{}, error) {
 		return nil, nil
 	}
 
-	rc := NewResourceConfig(n.Config)
-	rc.Config = make(map[string]interface{})
+	rc := *n.Config
 
 	// Wrap the input into a namespace
 	input := &PrefixUIInput{

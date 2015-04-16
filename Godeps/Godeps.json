@@ -12,65 +12,65 @@
 		},
 		{
 			"ImportPath": "github.com/hashicorp/hcl",
-			"Rev": "2c88e7ea6e73ce6455c11cc8a8375e6220913f7f"
+			"Rev": "513e04c400ee2e81e97f5e011c08fb42c6f69b84"
 		},
 		{
 			"ImportPath": "github.com/hashicorp/terraform/config",
-			"Comment": "v0.4.0",
-			"Rev": "1894e985557f010a4bca873c5b10bedb1cd7de5d"
+			"Comment": "v0.4.2",
+			"Rev": "8175d7f82134d378234a407e529853da681af07e"
 		},
 		{
 			"ImportPath": "github.com/hashicorp/terraform/dag",
-			"Comment": "v0.4.0",
-			"Rev": "1894e985557f010a4bca873c5b10bedb1cd7de5d"
+			"Comment": "v0.4.2",
+			"Rev": "8175d7f82134d378234a407e529853da681af07e"
 		},
 		{
 			"ImportPath": "github.com/hashicorp/terraform/flatmap",
-			"Comment": "v0.4.0",
-			"Rev": "1894e985557f010a4bca873c5b10bedb1cd7de5d"
+			"Comment": "v0.4.2",
+			"Rev": "8175d7f82134d378234a407e529853da681af07e"
 		},
 		{
 			"ImportPath": "github.com/hashicorp/terraform/helper/hashcode",
-			"Comment": "v0.4.0",
-			"Rev": "1894e985557f010a4bca873c5b10bedb1cd7de5d"
+			"Comment": "v0.4.2",
+			"Rev": "8175d7f82134d378234a407e529853da681af07e"
 		},
 		{
 			"ImportPath": "github.com/hashicorp/terraform/helper/multierror",
-			"Comment": "v0.4.0",
-			"Rev": "1894e985557f010a4bca873c5b10bedb1cd7de5d"
+			"Comment": "v0.4.2",
+			"Rev": "8175d7f82134d378234a407e529853da681af07e"
 		},
 		{
 			"ImportPath": "github.com/hashicorp/terraform/helper/schema",
-			"Comment": "v0.4.0",
-			"Rev": "1894e985557f010a4bca873c5b10bedb1cd7de5d"
+			"Comment": "v0.4.2",
+			"Rev": "8175d7f82134d378234a407e529853da681af07e"
 		},
 		{
 			"ImportPath": "github.com/hashicorp/terraform/helper/url",
-			"Comment": "v0.4.0",
-			"Rev": "1894e985557f010a4bca873c5b10bedb1cd7de5d"
+			"Comment": "v0.4.2",
+			"Rev": "8175d7f82134d378234a407e529853da681af07e"
 		},
 		{
 			"ImportPath": "github.com/hashicorp/terraform/plugin",
-			"Comment": "v0.4.0",
-			"Rev": "1894e985557f010a4bca873c5b10bedb1cd7de5d"
+			"Comment": "v0.4.2",
+			"Rev": "8175d7f82134d378234a407e529853da681af07e"
 		},
 		{
 			"ImportPath": "github.com/hashicorp/terraform/rpc",
-			"Comment": "v0.4.0",
-			"Rev": "1894e985557f010a4bca873c5b10bedb1cd7de5d"
+			"Comment": "v0.4.2",
+			"Rev": "8175d7f82134d378234a407e529853da681af07e"
 		},
 		{
 			"ImportPath": "github.com/hashicorp/terraform/terraform",
-			"Comment": "v0.4.0",
-			"Rev": "1894e985557f010a4bca873c5b10bedb1cd7de5d"
+			"Comment": "v0.4.2",
+			"Rev": "8175d7f82134d378234a407e529853da681af07e"
 		},
 		{
 			"ImportPath": "github.com/hashicorp/yamux",
-			"Rev": "9feabe6854fadca1abec9cd3bd2a613fe9a34000"
+			"Rev": "b2e55852ddaf823a85c67f798080eb7d08acd71d"
 		},
 		{
 			"ImportPath": "github.com/mitchellh/copystructure",
-			"Rev": "d8968bce41ab42f33aeb143afa95e331cb1ba886"
+			"Rev": "c101d94abf8cd5c6213c8300d0aed6368f2d6ede"
 		},
 		{
 			"ImportPath": "github.com/mitchellh/go-homedir",
@@ -78,11 +78,11 @@
 		},
 		{
 			"ImportPath": "github.com/mitchellh/mapstructure",
-			"Rev": "740c764bc6149d3f1806231418adb9f52c11bcbf"
+			"Rev": "442e588f213303bec7936deba67901f8fc8f18b1"
 		},
 		{
 			"ImportPath": "github.com/mitchellh/reflectwalk",
-			"Rev": "9989d7067f58812d814f5a837c5cbdd31799b694"
+			"Rev": "9cdd861463675960a0a0083a7e2023e7b0c994d7"
 		},
 		{
 			"ImportPath": "github.com/whitepages/go-stingray",

@@ -7,11 +7,7 @@ import (
 func ExampleCopy() {
 	input := map[string]interface{}{
 		"bob": map[string]interface{}{
-			"name":   "bob",
 			"emails": []string{"a", "b"},
-		},
-		"jane": map[string]interface{}{
-			"name": "jane",
 		},
 	}
 
@@ -22,5 +18,5 @@ func ExampleCopy() {
 
 	fmt.Printf("%#v", dup)
 	// Output:
-	// map[string]interface {}{"bob":map[string]interface {}{"name":"bob", "emails":[]string{"a", "b"}}, "jane":map[string]interface {}{"name":"jane"}}
+	// map[string]interface {}{"bob":map[string]interface {}{"emails":[]string{"a", "b"}}}
 }
