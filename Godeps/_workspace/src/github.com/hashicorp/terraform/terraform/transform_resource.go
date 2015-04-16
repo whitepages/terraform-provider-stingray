@@ -119,6 +119,11 @@ func (n *graphNodeExpandedResource) ResourceAddress() *ResourceAddress {
 	}
 }
 
+// graphNodeConfig impl.
+func (n *graphNodeExpandedResource) ConfigType() GraphNodeConfigType {
+	return GraphNodeConfigTypeResource
+}
+
 // GraphNodeDependable impl.
 func (n *graphNodeExpandedResource) DependableName() []string {
 	return []string{
@@ -166,7 +171,7 @@ func (n *graphNodeExpandedResource) EvalTree() EvalNode {
 		Output: &provider,
 	})
 	vseq.Nodes = append(vseq.Nodes, &EvalInterpolate{
-		Config:   n.Resource.RawConfig,
+		Config:   n.Resource.RawConfig.Copy(),
 		Resource: resource,
 		Output:   &resourceConfig,
 	})
@@ -184,7 +189,7 @@ func (n *graphNodeExpandedResource) EvalTree() EvalNode {
 			Name:   p.Type,
 			Output: &provisioner,
 		}, &EvalInterpolate{
-			Config:   p.RawConfig,
+			Config:   p.RawConfig.Copy(),
 			Resource: resource,
 			Output:   &resourceConfig,
 		}, &EvalValidateProvisioner{
@@ -238,7 +243,7 @@ func (n *graphNodeExpandedResource) EvalTree() EvalNode {
 		Node: &EvalSequence{
 			Nodes: []EvalNode{
 				&EvalInterpolate{
-					Config:   n.Resource.RawConfig,
+					Config:   n.Resource.RawConfig.Copy(),
 					Resource: resource,
 					Output:   &resourceConfig,
 				},
@@ -349,7 +354,7 @@ func (n *graphNodeExpandedResource) EvalTree() EvalNode {
 				},
 
 				&EvalInterpolate{
-					Config:   n.Resource.RawConfig,
+					Config:   n.Resource.RawConfig.Copy(),
 					Resource: resource,
 					Output:   &resourceConfig,
 				},
@@ -507,6 +512,11 @@ type graphNodeExpandedResourceDestroy struct {
 
 func (n *graphNodeExpandedResourceDestroy) Name() string {
 	return fmt.Sprintf("%s (destroy)", n.graphNodeExpandedResource.Name())
+}
+
+// graphNodeConfig impl.
+func (n *graphNodeExpandedResourceDestroy) ConfigType() GraphNodeConfigType {
+	return GraphNodeConfigTypeResource
 }
 
 // GraphNodeEvalable impl.

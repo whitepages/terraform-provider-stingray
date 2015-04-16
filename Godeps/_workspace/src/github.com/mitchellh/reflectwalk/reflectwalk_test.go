@@ -23,6 +23,19 @@ func (t *TestEnterExitWalker) Exit(l Location) error {
 	return nil
 }
 
+type TestPointerWalker struct {
+	Ps []bool
+}
+
+func (t *TestPointerWalker) PointerEnter(v bool) error {
+	t.Ps = append(t.Ps, v)
+	return nil
+}
+
+func (t *TestPointerWalker) PointerExit(v bool) error {
+	return nil
+}
+
 type TestPrimitiveWalker struct {
 	Value reflect.Value
 }
@@ -89,6 +102,10 @@ func (t *TestSliceWalker) SliceElem(int, reflect.Value) error {
 
 type TestStructWalker struct {
 	Fields []string
+}
+
+func (t *TestStructWalker) Struct(v reflect.Value) error {
+	return nil
 }
 
 func (t *TestStructWalker) StructField(sf reflect.StructField, v reflect.Value) error {
@@ -197,6 +214,7 @@ func TestWalk_EnterExit(t *testing.T) {
 
 	expected := []Location{
 		WalkLoc,
+		Struct,
 		StructField,
 		StructField,
 		StructField,
@@ -207,6 +225,7 @@ func TestWalk_EnterExit(t *testing.T) {
 		MapValue,
 		Map,
 		StructField,
+		Struct,
 		WalkLoc,
 	}
 	if !reflect.DeepEqual(w.Locs, expected) {
@@ -283,6 +302,28 @@ func TestWalk_Map(t *testing.T) {
 	expectedV := []string{"foov", "barv"}
 	if !reflect.DeepEqual(w.Values, expectedV) {
 		t.Fatalf("Bad values: %#v", w.Values)
+	}
+}
+
+func TestWalk_Pointer(t *testing.T) {
+	w := new(TestPointerWalker)
+
+	type S struct {
+		Foo string
+	}
+
+	data := &S{
+		Foo: "foo",
+	}
+
+	err := Walk(data, w)
+	if err != nil {
+		t.Fatalf("err: %s", err)
+	}
+
+	expected := []bool{true, false}
+	if !reflect.DeepEqual(w.Ps, expected) {
+		t.Fatalf("bad: %#v", w.Ps)
 	}
 }
 

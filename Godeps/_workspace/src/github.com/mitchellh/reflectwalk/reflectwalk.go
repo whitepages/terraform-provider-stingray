@@ -17,6 +17,7 @@ const (
 	MapValue
 	Slice
 	SliceElem
+	Struct
 	StructField
 	WalkLoc
 )
@@ -48,6 +49,7 @@ type SliceWalker interface {
 // StructWalker is an interface that has methods that are called for
 // structs when a Walk is done.
 type StructWalker interface {
+	Struct(reflect.Value) error
 	StructField(reflect.StructField, reflect.Value) error
 }
 
@@ -59,12 +61,20 @@ type EnterExitWalker interface {
 	Exit(Location) error
 }
 
+// PointerWalker implementations are notified when the value they're
+// walking is a pointer or not. Pointer is called for _every_ value whether
+// it is a pointer or not.
+type PointerWalker interface {
+	PointerEnter(bool) error
+	PointerExit(bool) error
+}
+
 // Walk takes an arbitrary value and an interface and traverses the
 // value, calling callbacks on the interface if they are supported.
 // The interface should implement one or more of the walker interfaces
 // in this package, such as PrimitiveWalker, StructWalker, etc.
 func Walk(data, walker interface{}) (err error) {
-	v := reflect.Indirect(reflect.ValueOf(data))
+	v := reflect.ValueOf(data)
 	ew, ok := walker.(EnterExitWalker)
 	if ok {
 		err = ew.Enter(WalkLoc)
@@ -81,7 +91,27 @@ func Walk(data, walker interface{}) (err error) {
 	return
 }
 
-func walk(v reflect.Value, w interface{}) error {
+func walk(v reflect.Value, w interface{}) (err error) {
+	// Determine if we're receiving a pointer and if so notify the walker.
+	pointer := false
+	if v.Kind() == reflect.Ptr {
+		pointer = true
+		v = reflect.Indirect(v)
+	}
+	if pw, ok := w.(PointerWalker); ok {
+		if err = pw.PointerEnter(pointer); err != nil {
+			return
+		}
+
+		defer func() {
+			if err != nil {
+				return
+			}
+
+			err = pw.PointerExit(pointer)
+		}()
+	}
+
 	// We preserve the original value here because if it is an interface
 	// type, we want to pass that directly into the walkPrimitive, so that
 	// we can set it.
@@ -106,17 +136,22 @@ func walk(v reflect.Value, w interface{}) error {
 	case reflect.Int:
 		fallthrough
 	case reflect.String:
-		return walkPrimitive(originalV, w)
+		err = walkPrimitive(originalV, w)
+		return
 	case reflect.Map:
-		return walkMap(v, w)
+		err = walkMap(v, w)
+		return
 	case reflect.Slice:
-		return walkSlice(v, w)
+		err = walkSlice(v, w)
+		return
 	case reflect.Struct:
-		return walkStruct(v, w)
+		err = walkStruct(v, w)
+		return
 	case reflect.Invalid:
 		// If the original kind was an interface, just let it through.
 		if originalV.Kind() == reflect.Interface {
-			return walkPrimitive(originalV, w)
+			err = walkPrimitive(originalV, w)
+			return
 		}
 
 		fallthrough
@@ -228,6 +263,17 @@ func walkSlice(v reflect.Value, w interface{}) (err error) {
 }
 
 func walkStruct(v reflect.Value, w interface{}) (err error) {
+	ew, ewok := w.(EnterExitWalker)
+	if ewok {
+		ew.Enter(Struct)
+	}
+
+	if sw, ok := w.(StructWalker); ok {
+		if err = sw.Struct(v); err != nil {
+			return
+		}
+	}
+
 	vt := v.Type()
 	for i := 0; i < vt.NumField(); i++ {
 		sf := vt.Field(i)
@@ -253,6 +299,10 @@ func walkStruct(v reflect.Value, w interface{}) (err error) {
 		if ok {
 			ew.Exit(StructField)
 		}
+	}
+
+	if ewok {
+		ew.Exit(Struct)
 	}
 
 	return nil
