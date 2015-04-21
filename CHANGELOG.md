@@ -1,3 +1,5 @@
+## 2.2.0
+
 * virtual_server: Set a default value for connection_timeout
 
 ## 2.1.1
