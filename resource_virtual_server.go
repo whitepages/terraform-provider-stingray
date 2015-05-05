@@ -370,5 +370,6 @@ func flattenServerCertHostMappingTable(list stingray.ServerCertHostMappingTable)
 		}
 		result = append(result, s)
 	}
+
 	return result
 }
