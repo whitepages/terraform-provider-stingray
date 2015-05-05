@@ -363,6 +363,7 @@ func expandServerCertHostMappingTable(configured []interface{}) (*stingray.Serve
 
 func flattenServerCertHostMappingTable(list stingray.ServerCertHostMappingTable) []map[string]interface{} {
 	result := make([]map[string]interface{}, 0, len(list))
+
 	for _, i := range list {
 		s := map[string]interface{}{
 			"certificate": *i.Certificate,
