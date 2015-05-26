@@ -106,6 +106,59 @@ func TestInterpolateFuncFormat(t *testing.T) {
 	})
 }
 
+func TestInterpolateFuncFormatList(t *testing.T) {
+	testFunction(t, testFunctionConfig{
+		Cases: []testFunctionCase{
+			// formatlist requires at least one list
+			{
+				`${formatlist("hello")}`,
+				nil,
+				true,
+			},
+			{
+				`${formatlist("hello %s", "world")}`,
+				nil,
+				true,
+			},
+			// formatlist applies to each list element in turn
+			{
+				`${formatlist("<%s>", split(",", "A,B"))}`,
+				"<A>" + InterpSplitDelim + "<B>",
+				false,
+			},
+			// formatlist repeats scalar elements
+			{
+				`${join(", ", formatlist("%s=%s", "x", split(",", "A,B,C")))}`,
+				"x=A, x=B, x=C",
+				false,
+			},
+			// Multiple lists are walked in parallel
+			{
+				`${join(", ", formatlist("%s=%s", split(",", "A,B,C"), split(",", "1,2,3")))}`,
+				"A=1, B=2, C=3",
+				false,
+			},
+			// formatlist of lists of length zero/one are repeated, just as scalars are
+			{
+				`${join(", ", formatlist("%s=%s", split(",", ""), split(",", "1,2,3")))}`,
+				"=1, =2, =3",
+				false,
+			},
+			{
+				`${join(", ", formatlist("%s=%s", split(",", "A"), split(",", "1,2,3")))}`,
+				"A=1, A=2, A=3",
+				false,
+			},
+			// Mismatched list lengths generate an error
+			{
+				`${formatlist("%s=%2s", split(",", "A,B,C,D"), split(",", "1,2,3"))}`,
+				nil,
+				true,
+			},
+		},
+	})
+}
+
 func TestInterpolateFuncJoin(t *testing.T) {
 	testFunction(t, testFunctionConfig{
 		Cases: []testFunctionCase{
@@ -183,6 +236,66 @@ func TestInterpolateFuncReplace(t *testing.T) {
 	})
 }
 
+func TestInterpolateFuncLength(t *testing.T) {
+	testFunction(t, testFunctionConfig{
+		Cases: []testFunctionCase{
+			// Raw strings
+			{
+				`${length("")}`,
+				"0",
+				false,
+			},
+			{
+				`${length("a")}`,
+				"1",
+				false,
+			},
+			{
+				`${length(" ")}`,
+				"1",
+				false,
+			},
+			{
+				`${length(" a ,")}`,
+				"4",
+				false,
+			},
+			{
+				`${length("aaa")}`,
+				"3",
+				false,
+			},
+
+			// Lists
+			{
+				`${length(split(",", "a"))}`,
+				"1",
+				false,
+			},
+			{
+				`${length(split(",", "foo,"))}`,
+				"2",
+				false,
+			},
+			{
+				`${length(split(",", ",foo,"))}`,
+				"3",
+				false,
+			},
+			{
+				`${length(split(",", "foo,bar"))}`,
+				"2",
+				false,
+			},
+			{
+				`${length(split(".", "one.two.three.four.five"))}`,
+				"5",
+				false,
+			},
+		},
+	})
+}
+
 func TestInterpolateFuncSplit(t *testing.T) {
 	testFunction(t, testFunctionConfig{
 		Cases: []testFunctionCase{
@@ -195,6 +308,35 @@ func TestInterpolateFuncSplit(t *testing.T) {
 			{
 				`${split(",", "foo")}`,
 				"foo",
+				false,
+			},
+
+			{
+				`${split(",", ",,,")}`,
+				fmt.Sprintf(
+					"%s%s%s",
+					InterpSplitDelim,
+					InterpSplitDelim,
+					InterpSplitDelim),
+				false,
+			},
+
+			{
+				`${split(",", "foo,")}`,
+				fmt.Sprintf(
+					"%s%s",
+					"foo",
+					InterpSplitDelim),
+				false,
+			},
+
+			{
+				`${split(",", ",foo,")}`,
+				fmt.Sprintf(
+					"%s%s%s",
+					InterpSplitDelim,
+					"foo",
+					InterpSplitDelim),
 				false,
 			},
 
@@ -302,8 +444,8 @@ func testFunction(t *testing.T, config testFunctionConfig) {
 
 		if !reflect.DeepEqual(out, tc.Result) {
 			t.Fatalf(
-				"%d: bad output for input: %s\n\nOutput: %#v",
-				i, tc.Input, out)
+				"%d: bad output for input: %s\n\nOutput: %#v\nExpected: %#v",
+				i, tc.Input, out, tc.Result)
 		}
 	}
 }

@@ -3,6 +3,7 @@ package config
 import (
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -57,6 +58,22 @@ func TestConfigValidate_countInt(t *testing.T) {
 	c := testConfig(t, "validate-count-int")
 	if err := c.Validate(); err != nil {
 		t.Fatalf("err: %s", err)
+	}
+}
+
+func TestConfigValidate_countBadContext(t *testing.T) {
+	c := testConfig(t, "validate-count-bad-context")
+
+	err := c.Validate()
+
+	expected := []string{
+		"no_count_in_output: count variables are only valid within resources",
+		"no_count_in_module: count variables are only valid within resources",
+	}
+	for _, exp := range expected {
+		if !strings.Contains(err.Error(), exp) {
+			t.Fatalf("expected: %q,\nto contain: %q", err, exp)
+		}
 	}
 }
 
@@ -158,6 +175,13 @@ func TestConfigValidate_moduleVarMap(t *testing.T) {
 	}
 }
 
+func TestConfigValidate_moduleVarSelf(t *testing.T) {
+	c := testConfig(t, "validate-module-var-self")
+	if err := c.Validate(); err == nil {
+		t.Fatal("should be invalid")
+	}
+}
+
 func TestConfigValidate_nil(t *testing.T) {
 	var c Config
 	if err := c.Validate(); err != nil {
@@ -181,6 +205,34 @@ func TestConfigValidate_pathVar(t *testing.T) {
 
 func TestConfigValidate_pathVarInvalid(t *testing.T) {
 	c := testConfig(t, "validate-path-var-invalid")
+	if err := c.Validate(); err == nil {
+		t.Fatal("should not be valid")
+	}
+}
+
+func TestConfigValidate_providerMulti(t *testing.T) {
+	c := testConfig(t, "validate-provider-multi")
+	if err := c.Validate(); err == nil {
+		t.Fatal("should not be valid")
+	}
+}
+
+func TestConfigValidate_providerMultiGood(t *testing.T) {
+	c := testConfig(t, "validate-provider-multi-good")
+	if err := c.Validate(); err != nil {
+		t.Fatalf("should be valid: %s", err)
+	}
+}
+
+func TestConfigValidate_providerMultiRefGood(t *testing.T) {
+	c := testConfig(t, "validate-provider-multi-ref-good")
+	if err := c.Validate(); err != nil {
+		t.Fatalf("should be valid: %s", err)
+	}
+}
+
+func TestConfigValidate_providerMultiRefBad(t *testing.T) {
+	c := testConfig(t, "validate-provider-multi-ref-bad")
 	if err := c.Validate(); err == nil {
 		t.Fatal("should not be valid")
 	}

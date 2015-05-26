@@ -11,6 +11,12 @@ import (
 	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/config/module"
 )
 
+const (
+	// VarEnvPrefix is the prefix of variables that are read from
+	// the environment to set variables here.
+	VarEnvPrefix = "TF_VAR_"
+)
+
 // Interpolater is the structure responsible for determining the values
 // for interpolations such as `aws_instance.foo.bar`.
 type Interpolater struct {
@@ -85,6 +91,9 @@ func (i *Interpolater) valueCountVar(
 	result map[string]ast.Variable) error {
 	switch v.Type {
 	case config.CountValueIndex:
+		if scope.Resource == nil {
+			return fmt.Errorf("%s: count.index is only valid within resources", n)
+		}
 		result[n] = ast.Variable{
 			Value: scope.Resource.CountIndex,
 			Type:  ast.TypeInt,
@@ -307,10 +316,7 @@ func (i *Interpolater) computeResourceVariable(
 		r = nil
 	}
 	if r == nil {
-		return "", fmt.Errorf(
-			"Resource '%s' not found for variable '%s'",
-			id,
-			v.FullKey())
+		goto MISSING
 	}
 
 	if r.Primary == nil {
@@ -353,6 +359,13 @@ func (i *Interpolater) computeResourceVariable(
 	}
 
 MISSING:
+	// Validation for missing interpolations should happen at a higher
+	// semantic level. If we reached this point and don't have variables,
+	// just return the computed value.
+	if scope == nil || scope.Resource == nil {
+		return config.UnknownVariableValue, nil
+	}
+
 	// If the operation is refresh, it isn't an error for a value to
 	// be unknown. Instead, we return that the value is computed so
 	// that the graph can continue to refresh other nodes. It doesn't
