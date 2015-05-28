@@ -37,7 +37,7 @@ func resourceVirtualServer() *schema.Resource {
 			"connection_timeout": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  10,
+				Default:  300,
 			},
 
 			"connect_timeout": &schema.Schema{
