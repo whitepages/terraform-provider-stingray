@@ -1,3 +1,6 @@
+* virtual_server: Set connection timeout default to documented value
+  (300)
+
 ## 2.2.1
 
 * Update godeps for terraform v0.5.2
