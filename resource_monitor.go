@@ -22,6 +22,12 @@ func resourceMonitor() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"back_off": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
+
 			"delay": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -64,10 +70,34 @@ func resourceMonitor() *schema.Resource {
 				Default:  "^[234][0-9][0-9]$",
 			},
 
+			"machine": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
 			"note": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "",
+			},
+
+			"rtsp_body_regex": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
+			"rtsp_path": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
+			"rtsp_status_regex": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 
 			"script_arguments": &schema.Schema{
@@ -97,6 +127,30 @@ func resourceMonitor() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "",
+			},
+
+			"scope": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
+			"sip_body_regex": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
+			"sip_status_regex": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
+			"sip_transport": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 			},
 
 			"tcp_close_string": &schema.Schema{
@@ -146,6 +200,12 @@ func resourceMonitor() *schema.Resource {
 				Optional: true,
 				Default:  false,
 			},
+
+			"verbose": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -174,6 +234,7 @@ func resourceMonitorRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading resource: %s", err)
 	}
 
+	d.Set("back_off", bool(*r.Basic.BackOff))
 	d.Set("delay", int(*r.Basic.Delay))
 	d.Set("failures", int(*r.Basic.Failures))
 	d.Set("http_authentication", string(*r.HTTP.Authentication))
@@ -181,9 +242,17 @@ func resourceMonitorRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("http_host_header", string(*r.HTTP.HostHeader))
 	d.Set("http_path", string(*r.HTTP.Path))
 	d.Set("http_status_regex", string(*r.HTTP.StatusRegex))
+	d.Set("machine", string(*r.Basic.Machine))
 	d.Set("note", string(*r.Basic.Note))
+	d.Set("rtsp_body_regex", string(*r.RTSP.BodyRegex))
+	d.Set("rtsp_path", string(*r.RTSP.Path))
+	d.Set("rtsp_status_regex", string(*r.RTSP.StatusRegex))
+	d.Set("scope", string(*r.Basic.Scope))
 	d.Set("script_arguments", flattenScriptArgumentsTable(*r.Script.Arguments))
 	d.Set("script_program", string(*r.Script.Program))
+	d.Set("sip_body_regex", string(*r.SIP.BodyRegex))
+	d.Set("sip_status_regex", string(*r.SIP.StatusRegex))
+	d.Set("sip_transport", string(*r.SIP.Transport))
 	d.Set("tcp_close_string", string(*r.TCP.CloseString))
 	d.Set("tcp_max_response_len", int(*r.TCP.MaxResponseLen))
 	d.Set("tcp_response_regex", string(*r.TCP.ResponseRegex))
@@ -192,6 +261,7 @@ func resourceMonitorRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("type", string(*r.Basic.Type))
 	d.Set("udp_accept_all", bool(*r.UDP.AcceptAll))
 	d.Set("use_ssl", bool(*r.Basic.UseSSL))
+	d.Set("verbose", bool(*r.Basic.Verbose))
 
 	return nil
 }
@@ -221,6 +291,7 @@ func resourceMonitorSet(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*providerConfig).client
 	r := stingray.NewMonitor(d.Get("name").(string))
 
+	setBool(&r.Basic.BackOff, d, "back_off")
 	setInt(&r.Basic.Delay, d, "delay")
 	setInt(&r.Basic.Failures, d, "failures")
 	setString(&r.HTTP.Authentication, d, "http_authentication")
@@ -228,9 +299,17 @@ func resourceMonitorSet(d *schema.ResourceData, meta interface{}) error {
 	setString(&r.HTTP.HostHeader, d, "http_host_header")
 	setString(&r.HTTP.Path, d, "http_path")
 	setString(&r.HTTP.StatusRegex, d, "http_status_regex")
+	setString(&r.Basic.Machine, d, "machine")
 	setString(&r.Basic.Note, d, "note")
+	setString(&r.RTSP.BodyRegex, d, "rtsp_body_regex")
+	setString(&r.RTSP.Path, d, "rtsp_path")
+	setString(&r.RTSP.StatusRegex, d, "rtsp_status_regex")
+	setString(&r.Basic.Scope, d, "scope")
 	setScriptArgumentsTable(&r.Script.Arguments, d, "script_arguments")
 	setString(&r.Script.Program, d, "script_program")
+	setString(&r.SIP.BodyRegex, d, "sip_body_regex")
+	setString(&r.SIP.StatusRegex, d, "sip_status_regex")
+	setString(&r.SIP.Transport, d, "sip_transports")
 	setString(&r.TCP.CloseString, d, "tcp_close_string")
 	setInt(&r.TCP.MaxResponseLen, d, "tcp_max_response_len")
 	setString(&r.TCP.ResponseRegex, d, "tcp_response_regex")
@@ -239,6 +318,7 @@ func resourceMonitorSet(d *schema.ResourceData, meta interface{}) error {
 	setString(&r.Basic.Type, d, "type")
 	setBool(&r.UDP.AcceptAll, d, "udp_accept_all")
 	setBool(&r.Basic.UseSSL, d, "use_ssl")
+	setBool(&r.Basic.Verbose, d, "verbose")
 
 	_, err := c.Set(r)
 	if err != nil {
