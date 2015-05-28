@@ -1,3 +1,5 @@
+## 2.2.2
+
 * virtual_server: Set connection timeout default to documented value
   (300)
 
