@@ -93,7 +93,7 @@ func resourcePool() *schema.Resource {
 			"passive_monitoring": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				Computed: true,
+				Default:  true,
 			},
 
 			"tcp_nagle": &schema.Schema{
