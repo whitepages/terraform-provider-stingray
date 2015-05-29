@@ -1,3 +1,5 @@
+## 2.5.1
+
 * Read correct value for traffic_ip_group slaves parameter (was
   getting the value of machines)
 
