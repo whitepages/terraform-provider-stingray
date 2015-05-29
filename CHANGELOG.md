@@ -1,3 +1,5 @@
+* Default values are set for all boolean parameters
+
 ## 2.3.0
 
 * pool: Set default value for passive_monitoring
