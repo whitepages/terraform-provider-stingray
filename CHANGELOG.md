@@ -1,3 +1,5 @@
+## 2.5.0
+
 * All parameters have defaults set
 
 ## 2.4.0
