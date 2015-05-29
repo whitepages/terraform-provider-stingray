@@ -1,3 +1,5 @@
+## 2.3.0
+
 * pool: Set default value for passive_monitoring
 
 ## 2.2.2
