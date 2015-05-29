@@ -154,6 +154,18 @@ func resourcePool() *schema.Resource {
 				Optional: true,
 				Computed: true,
 			},
+
+			"udp_accept_from": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
+
+			"udp_accept_from_mask": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -203,6 +215,8 @@ func resourcePoolRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("passive_monitoring", bool(*r.Basic.PassiveMonitoring))
 	d.Set("persistence_class", string(*r.Basic.PersistenceClass))
 	d.Set("tcp_nagle", bool(*r.TCP.Nagle))
+	d.Set("udp_accept_from", string(*r.UDP.AcceptFrom))
+	d.Set("udp_accept_from_mask_class", string(*r.UDP.AcceptFromMask))
 	d.Set("transparent", bool(*r.Basic.Transparent))
 
 	return nil
@@ -255,6 +269,8 @@ func resourcePoolSet(d *schema.ResourceData, meta interface{}) error {
 	setString(&r.Basic.PersistenceClass, d, "persistence_class")
 	setBool(&r.TCP.Nagle, d, "tcp_nagle")
 	setBool(&r.Basic.Transparent, d, "transparent")
+	setString(&r.UDP.AcceptFrom, d, "udp_accept_from")
+	setString(&r.UDP.AcceptFromMask, d, "udp_accept_from_mask")
 
 	_, err := c.Set(r)
 	if err != nil {
