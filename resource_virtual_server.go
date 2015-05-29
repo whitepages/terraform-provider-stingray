@@ -46,8 +46,7 @@ func resourceVirtualServer() *schema.Resource {
 				Default:  10,
 			},
 
-			// Default value of enabled in v3.2 of the
-			// REST API is false
+			// NOTE: Default for the Stingray API is false
 			"enabled": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -77,6 +76,7 @@ func resourceVirtualServer() *schema.Resource {
 				Default:  "if_host_matches",
 			},
 
+			// NOTE: Default for the Stingray API is true
 			"listen_on_any": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
