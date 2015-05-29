@@ -128,7 +128,7 @@ func resourceTrafficIPGroupRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("mode", string(*r.Basic.Mode))
 	d.Set("multicast", string(*r.Basic.Multicast))
 	d.Set("note", string(*r.Basic.Note))
-	d.Set("slaves", []string(*r.Basic.Machines))
+	d.Set("slaves", []string(*r.Basic.Slaves))
 
 	return nil
 }
