@@ -117,36 +117,24 @@ func hashString(v interface{}) string {
 	}
 }
 
-// setBool sets the target
 func setBool(target **bool, d *schema.ResourceData, key string) {
 	*target = stingray.Bool(d.Get(key).(bool))
 }
 
-// setInt sets the target if the key is set in the schema config
 func setInt(target **int, d *schema.ResourceData, key string) {
-	if v, ok := d.GetOk(key); ok {
-		*target = stingray.Int(v.(int))
-	}
+	*target = stingray.Int(d.Get(key).(int))
 }
 
-// setString sets the target if the key is set in the schema config
 func setString(target **string, d *schema.ResourceData, key string) {
-	if v, ok := d.GetOk(key); ok {
-		*target = stingray.String(v.(string))
-	}
+	*target = stingray.String(d.Get(key).(string))
 }
 
-// setStringList sets the target if the key is set in the schema config
 func setStringList(target **[]string, d *schema.ResourceData, key string) {
-	v := d.Get(key)
-	list := expandStringList(v.([]interface{}))
+	list := expandStringList(d.Get(key).([]interface{}))
 	*target = &list
 }
 
-// setStringSet sets the target if the key is set in the schema config
 func setStringSet(target **[]string, d *schema.ResourceData, key string) {
-	if _, ok := d.GetOk(key); ok {
-		list := expandStringList(d.Get(key).(*schema.Set).List())
-		*target = &list
-	}
+	list := expandStringList(d.Get(key).(*schema.Set).List())
+	*target = &list
 }

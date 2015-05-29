@@ -24,49 +24,49 @@ func resourceMonitor() *schema.Resource {
 			"delay": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
-				Computed: true,
+				Default:  3,
 			},
 
 			"failures": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
-				Computed: true,
+				Default:  3,
 			},
 
 			"http_authentication": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "",
 			},
 
 			"http_body_regex": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "",
 			},
 
 			"http_host_header": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "",
 			},
 
 			"http_path": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "/",
 			},
 
 			"http_status_regex": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "^[234][0-9][0-9]$",
 			},
 
 			"note": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "",
 			},
 
 			// TODO: TypeSet might be better for script_arguments
@@ -78,7 +78,7 @@ func resourceMonitor() *schema.Resource {
 						"description": &schema.Schema{
 							Type:     schema.TypeString,
 							Optional: true,
-							Computed: true,
+							Default:  true,
 						},
 
 						"name": &schema.Schema{
@@ -97,43 +97,43 @@ func resourceMonitor() *schema.Resource {
 			"script_program": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "",
 			},
 
 			"tcp_close_string": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "",
 			},
 
 			"tcp_max_response_len": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
-				Computed: true,
+				Default:  2048,
 			},
 
 			"tcp_response_regex": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  ".+",
 			},
 
 			"tcp_write_string": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "",
 			},
 
 			"timeout": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
-				Computed: true,
+				Default:  3,
 			},
 
 			"type": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "ping",
 			},
 
 			"udp_accept_all": &schema.Schema{

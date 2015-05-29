@@ -25,37 +25,37 @@ func resourcePool() *schema.Resource {
 			"connection_max_connect_time": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
-				Computed: true,
+				Default:  4,
 			},
 
 			"connection_max_connections_per_node": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
-				Computed: true,
+				Default:  0,
 			},
 
 			"connection_max_queue_size": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
-				Computed: true,
+				Default:  0,
 			},
 
 			"connection_max_reply_time": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
-				Computed: true,
+				Default:  30,
 			},
 
 			"connection_queue_timeout": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
-				Computed: true,
+				Default:  10,
 			},
 
 			"load_balancing_algorithm": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "round_robin",
 			},
 
 			"load_balancing_priority_enabled": &schema.Schema{
@@ -67,7 +67,6 @@ func resourcePool() *schema.Resource {
 			"monitors": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
-				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set: func(v interface{}) int {
 					return hashcode.String(v.(string))
@@ -77,7 +76,6 @@ func resourcePool() *schema.Resource {
 			"nodes": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
-				Computed: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set: func(v interface{}) int {
 					return hashcode.String(v.(string))
@@ -87,7 +85,7 @@ func resourcePool() *schema.Resource {
 			"note": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "",
 			},
 
 			"passive_monitoring": &schema.Schema{
