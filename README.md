@@ -70,6 +70,15 @@ fully supported.
 - [ ] User Group
 - [x] Virtual Server
 
+## Default values
+
+All default values are taken from the Stingray REST API documentation,
+with the following exceptions:
+
+`stingray_virtual_server`
+- `enabled`: provider default is true; Stingray default is false
+- `listen_on_any`: provider default is false; Stingray default is true
+
 ## Building
 
 Dependencies are vendored (using `godep save -r`). Running `go
