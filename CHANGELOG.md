@@ -1,3 +1,5 @@
+* All parameters have defaults set
+
 ## 2.4.0
 
 * Default values are set for all boolean parameters
