@@ -1,3 +1,5 @@
+* pool: Set default value for passive_monitoring
+
 ## 2.2.2
 
 * virtual_server: Set connection timeout default to documented value
