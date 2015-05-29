@@ -75,6 +75,12 @@ func resourcePool() *schema.Resource {
 				Default:  false,
 			},
 
+			"load_balancing_priority_nodes": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Computed: true,
+			},
+
 			"max_connection_attempts": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -185,6 +191,7 @@ func resourcePoolRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("failure_pool", string(*r.Basic.FailurePool))
 	d.Set("load_balancing_algorithm", string(*r.LoadBalancing.Algorithm))
 	d.Set("load_balancing_priority_enabled", bool(*r.LoadBalancing.PriorityEnabled))
+	d.Set("load_balancing_priority_nodes", int(*r.LoadBalancing.PriorityNodes))
 	d.Set("max_connection_attempts", int(*r.Basic.MaxConnectionAttempts))
 	d.Set("max_idle_connections_pernode", int(*r.Basic.MaxIdleConnectionsPerNode))
 	d.Set("max_timed_out_connection_attempts", int(*r.Basic.MaxTimedOutConnectionAttempts))
@@ -235,6 +242,7 @@ func resourcePoolSet(d *schema.ResourceData, meta interface{}) error {
 	setString(&r.Basic.FailurePool, d, "failure_pool")
 	setString(&r.LoadBalancing.Algorithm, d, "load_balancing_algorithm")
 	setBool(&r.LoadBalancing.PriorityEnabled, d, "load_balancing_priority_enabled")
+	setInt(&r.LoadBalancing.PriorityNodes, d, "load_balancing_priority_nodes")
 	setInt(&r.Basic.MaxConnectionAttempts, d, "max_connection_attempts")
 	setInt(&r.Basic.MaxIdleConnectionsPerNode, d, "max_idle_connections_pernode")
 	setInt(&r.Basic.MaxTimedOutConnectionAttempts, d, "max_timed_out_connection_attempts")
