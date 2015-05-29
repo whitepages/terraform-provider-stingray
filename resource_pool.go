@@ -61,7 +61,7 @@ func resourcePool() *schema.Resource {
 			"load_balancing_priority_enabled": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				Computed: true,
+				Default:  false,
 			},
 
 			"monitors": &schema.Schema{
@@ -99,7 +99,7 @@ func resourcePool() *schema.Resource {
 			"tcp_nagle": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				Computed: true,
+				Default:  true,
 			},
 		},
 	}

@@ -57,7 +57,7 @@ func resourceVirtualServer() *schema.Resource {
 			"gzip_enabled": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				Computed: true,
+				Default:  false,
 			},
 
 			"gzip_include_mime": &schema.Schema{
@@ -95,7 +95,7 @@ func resourceVirtualServer() *schema.Resource {
 			"log_enabled": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				Computed: true,
+				Default:  false,
 			},
 
 			"log_filename": &schema.Schema{
@@ -113,7 +113,7 @@ func resourceVirtualServer() *schema.Resource {
 			"log_server_connection_failures": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				Computed: true,
+				Default:  false,
 			},
 
 			"note": &schema.Schema{
@@ -141,7 +141,7 @@ func resourceVirtualServer() *schema.Resource {
 			"recent_connections_save_all": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				Computed: true,
+				Default:  false,
 			},
 
 			"request_rules": &schema.Schema{
@@ -159,13 +159,13 @@ func resourceVirtualServer() *schema.Resource {
 			"ssl_add_http_headers": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				Computed: true,
+				Default:  false,
 			},
 
 			"ssl_decrypt": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				Computed: true,
+				Default:  false,
 			},
 
 			"ssl_server_cert_default": &schema.Schema{
@@ -205,7 +205,7 @@ func resourceVirtualServer() *schema.Resource {
 			"web_cache_enabled": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				Computed: true,
+				Default:  false,
 			},
 
 			"web_cache_max_time": &schema.Schema{

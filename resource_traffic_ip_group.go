@@ -32,7 +32,7 @@ func resourceTrafficIPGroup() *schema.Resource {
 			"hash_source_port": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				Computed: true,
+				Default:  false,
 			},
 
 			"ipaddresses": &schema.Schema{
@@ -48,7 +48,7 @@ func resourceTrafficIPGroup() *schema.Resource {
 			"keeptogether": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				Computed: true,
+				Default:  false,
 			},
 
 			"location": &schema.Schema{

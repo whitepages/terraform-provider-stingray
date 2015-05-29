@@ -139,13 +139,13 @@ func resourceMonitor() *schema.Resource {
 			"udp_accept_all": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				Computed: true,
+				Default:  false,
 			},
 
 			"use_ssl": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				Computed: true,
+				Default:  false,
 			},
 		},
 	}
