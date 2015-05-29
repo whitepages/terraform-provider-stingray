@@ -117,11 +117,9 @@ func hashString(v interface{}) string {
 	}
 }
 
-// setBool sets the target if the key is set in the schema config
+// setBool sets the target
 func setBool(target **bool, d *schema.ResourceData, key string) {
-	if v, ok := d.GetOk(key); ok {
-		*target = stingray.Bool(v.(bool))
-	}
+	*target = stingray.Bool(d.Get(key).(bool))
 }
 
 // setInt sets the target if the key is set in the schema config
