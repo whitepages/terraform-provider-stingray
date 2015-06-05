@@ -189,10 +189,7 @@ func resourceVirtualServer() *schema.Resource {
 						},
 					},
 				},
-				Set: func(v interface{}) int {
-					m := v.(map[string]interface{})
-					return hashcode.String(m["host"].(string))
-				},
+				Set: hashServerCertHostMapping,
 			},
 
 			"syslog_format": &schema.Schema{
@@ -372,4 +369,9 @@ func flattenServerCertHostMappingTable(list stingray.ServerCertHostMappingTable)
 	}
 
 	return result
+}
+
+func hashServerCertHostMapping(v interface{}) int {
+	m := v.(map[string]interface{})
+	return hashcode.String(m["host"].(string))
 }
