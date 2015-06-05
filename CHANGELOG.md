@@ -1,3 +1,5 @@
+* virtual_server: Set default value for gzip_include_mime
+
 ## 2.5.1
 
 * Read correct value for traffic_ip_group slaves parameter (was
