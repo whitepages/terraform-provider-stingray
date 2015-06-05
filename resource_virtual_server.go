@@ -306,7 +306,7 @@ func resourceVirtualServerSet(d *schema.ResourceData, meta interface{}) error {
 	}
 	setBool(&r.Gzip.Enabled, d, "gzip_enabled")
 	setString(&r.HTTP.LocationRewrite, d, "http_location_rewrite")
-	r.Basic.ListenOnAny = stingray.Bool(d.Get("listen_on_any").(bool))
+	setBool(&r.Basic.ListenOnAny, d, "listen_on_any")
 	setStringSet(&r.Basic.ListenOnTrafficIPs, d, "listen_on_traffic_ips")
 	setBool(&r.Log.Enabled, d, "log_enabled")
 	setString(&r.Log.Filename, d, "log_filename")
