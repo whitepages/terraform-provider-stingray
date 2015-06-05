@@ -64,8 +64,6 @@ func resourceVirtualServer() *schema.Resource {
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
-				// FIXME: This is not working
-				Default: []string{"text/html", "text/plain"},
 			},
 
 			"http_location_rewrite": &schema.Schema{
@@ -295,7 +293,16 @@ func resourceVirtualServerSet(d *schema.ResourceData, meta interface{}) error {
 	setInt(&r.Connection.Timeout, d, "connection_timeout")
 	setInt(&r.Basic.ConnectTimeout, d, "connect_timeout")
 	r.Basic.Enabled = stingray.Bool(d.Get("enabled").(bool))
-	setStringSet(&r.Gzip.IncludeMIME, d, "gzip_include_mime")
+	// NOTE: Set default for gzip_include_mime
+	//
+	// Default does not work for sets (only for primitive types),
+	// so we must use GetOK. This means we will get the default
+	// value if the parameter is unset OR set to the empty value.
+	if _, ok := d.GetOk("gzip_include_mime"); ok {
+		setStringSet(&r.Gzip.IncludeMIME, d, "gzip_include_mime")
+	} else {
+		r.Gzip.IncludeMIME = &[]string{"text/html", "text/plain"}
+	}
 	setBool(&r.Gzip.Enabled, d, "gzip_enabled")
 	setString(&r.HTTP.LocationRewrite, d, "http_location_rewrite")
 	r.Basic.ListenOnAny = stingray.Bool(d.Get("listen_on_any").(bool))
