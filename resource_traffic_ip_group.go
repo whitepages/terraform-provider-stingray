@@ -151,7 +151,7 @@ func resourceTrafficIPGroupSet(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*providerConfig).client
 	r := stingray.NewTrafficIPGroup(d.Get("name").(string))
 
-	r.Basic.Enabled = stingray.Bool(d.Get("enabled").(bool))
+	setBool(&r.Basic.Enabled, d, "enabled")
 	setBool(&r.Basic.HashSourcePort, d, "hash_source_port")
 	setStringSet(&r.Basic.IPAddresses, d, "ipaddresses")
 	setBool(&r.Basic.KeepTogether, d, "keeptogether")

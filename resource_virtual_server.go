@@ -293,7 +293,7 @@ func resourceVirtualServerSet(d *schema.ResourceData, meta interface{}) error {
 	setInt(&r.Connection.KeepaliveTimeout, d, "connection_keepalive_timeout")
 	setInt(&r.Connection.Timeout, d, "connection_timeout")
 	setInt(&r.Basic.ConnectTimeout, d, "connect_timeout")
-	r.Basic.Enabled = stingray.Bool(d.Get("enabled").(bool))
+	setBool(&r.Basic.Enabled, d, "enabled")
 	// NOTE: Set default for gzip_include_mime
 	//
 	// Default does not work for sets (only for primitive types),
