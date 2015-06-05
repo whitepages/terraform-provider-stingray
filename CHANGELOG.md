@@ -1,3 +1,6 @@
+* virtual_server: Make gzip_include_mime a computed type to keep
+  spurious changes from being reported
+
 ## 2.5.2
 
 * virtual_server: Set default value for gzip_include_mime
