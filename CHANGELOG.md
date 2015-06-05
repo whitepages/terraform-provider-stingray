@@ -1,3 +1,5 @@
+## 2.5.2
+
 * virtual_server: Set default value for gzip_include_mime
 
 ## 2.5.1
