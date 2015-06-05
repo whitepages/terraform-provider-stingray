@@ -1,3 +1,5 @@
+## 2.5.4
+
 * Use setBool everywhere
 
 ## 2.5.3
