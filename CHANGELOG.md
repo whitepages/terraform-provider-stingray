@@ -1,3 +1,5 @@
+## 2.5.3
+
 * virtual_server: Make gzip_include_mime a computed type to keep
   spurious changes from being reported
 
