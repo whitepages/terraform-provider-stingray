@@ -25,7 +25,7 @@ func resourceMonitor() *schema.Resource {
 			"back_off": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				Computed: true,
+				Default:  true,
 			},
 
 			"delay": &schema.Schema{
@@ -73,7 +73,7 @@ func resourceMonitor() *schema.Resource {
 			"machine": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "",
 			},
 
 			"note": &schema.Schema{
@@ -85,19 +85,19 @@ func resourceMonitor() *schema.Resource {
 			"rtsp_body_regex": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "",
 			},
 
 			"rtsp_path": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "",
 			},
 
 			"rtsp_status_regex": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "^[234][0-9][0-9]$",
 			},
 
 			"script_arguments": &schema.Schema{
@@ -132,25 +132,25 @@ func resourceMonitor() *schema.Resource {
 			"scope": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "pernode",
 			},
 
 			"sip_body_regex": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "",
 			},
 
 			"sip_status_regex": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "^[234][0-9][0-9]$",
 			},
 
 			"sip_transport": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "udp",
 			},
 
 			"tcp_close_string": &schema.Schema{
@@ -204,7 +204,7 @@ func resourceMonitor() *schema.Resource {
 			"verbose": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				Computed: true,
+				Default:  false,
 			},
 		},
 	}

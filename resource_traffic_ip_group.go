@@ -81,13 +81,13 @@ func resourceTrafficIPGroup() *schema.Resource {
 			"rhi_ospfv2_metric_base": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
-				Computed: true,
+				Default:  10,
 			},
 
 			"rhi_ospfv2_passive_metric_offset": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
-				Computed: true,
+				Default:  10,
 			},
 
 			"slaves": &schema.Schema{

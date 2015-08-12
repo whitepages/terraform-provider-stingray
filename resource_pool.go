@@ -24,7 +24,7 @@ func resourcePool() *schema.Resource {
 			"bandwidth_class": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "",
 			},
 
 			"connection_max_connect_time": &schema.Schema{
@@ -60,7 +60,7 @@ func resourcePool() *schema.Resource {
 			"failure_pool": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "",
 			},
 
 			"load_balancing_algorithm": &schema.Schema{
@@ -78,25 +78,25 @@ func resourcePool() *schema.Resource {
 			"load_balancing_priority_nodes": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
-				Computed: true,
+				Default:  1,
 			},
 
 			"max_connection_attempts": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
-				Computed: true,
+				Default:  1,
 			},
 
 			"max_idle_connections_pernode": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
-				Computed: true,
+				Default:  50,
 			},
 
 			"max_timed_out_connection_attempts": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
-				Computed: true,
+				Default:  2,
 			},
 
 			"monitors": &schema.Schema{
@@ -109,13 +109,13 @@ func resourcePool() *schema.Resource {
 			"node_close_with_rst": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				Computed: true,
+				Default:  false,
 			},
 
 			"node_connection_attempts": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
-				Computed: true,
+				Default:  3,
 			},
 
 			"nodes": &schema.Schema{
@@ -140,7 +140,7 @@ func resourcePool() *schema.Resource {
 			"persistence_class": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "",
 			},
 
 			"tcp_nagle": &schema.Schema{
@@ -152,19 +152,19 @@ func resourcePool() *schema.Resource {
 			"transparent": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
-				Computed: true,
+				Default:  false,
 			},
 
 			"udp_accept_from": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "dest_only",
 			},
 
 			"udp_accept_from_mask": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Computed: true,
+				Default:  "",
 			},
 		},
 	}
