@@ -78,6 +78,18 @@ func resourceTrafficIPGroup() *schema.Resource {
 				Default:  "",
 			},
 
+			"rhi_ospfv2_metric_base": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  10,
+			},
+
+			"rhi_ospfv2_passive_metric_offset": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  10,
+			},
+
 			"slaves": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
@@ -121,6 +133,8 @@ func resourceTrafficIPGroupRead(d *schema.ResourceData, meta interface{}) error 
 	d.Set("mode", string(*r.Basic.Mode))
 	d.Set("multicast", string(*r.Basic.Multicast))
 	d.Set("note", string(*r.Basic.Note))
+	d.Set("rhi_ospfv2_metric_base", int(*r.Basic.RHIOSPFV2MetricBase))
+	d.Set("rhi_ospfv2_passive_metric_offset", int(*r.Basic.RHIOSPFV2PassiveMetricOffset))
 	d.Set("slaves", []string(*r.Basic.Slaves))
 
 	return nil
@@ -160,6 +174,8 @@ func resourceTrafficIPGroupSet(d *schema.ResourceData, meta interface{}) error {
 	setString(&r.Basic.Mode, d, "mode")
 	setString(&r.Basic.Multicast, d, "multicast")
 	setString(&r.Basic.Note, d, "note")
+	setInt(&r.Basic.RHIOSPFV2MetricBase, d, "rhi_ospfv2_metric_base")
+	setInt(&r.Basic.RHIOSPFV2PassiveMetricOffset, d, "rhi_ospfv2_passive_metric_offset")
 	setStringSet(&r.Basic.Slaves, d, "slaves")
 
 	ns := meta.(*providerConfig).validNetworks

@@ -50,7 +50,7 @@ fully supported.
 - [ ] Global Settings
 - [x] **License**
 - [ ] Location
-- [x] Monitor
+- [x] **Monitor**
 - [x] **Monitor Program**
 - [ ] NAT Configuration
 - [x] Pool
@@ -63,7 +63,7 @@ fully supported.
 - [x] **SSL Trusted Certificate**
 - [ ] Security Settings
 - [ ] Session Persistence Class
-- [x] Traffic IP Group
+- [x] **Traffic IP Group**
 - [ ] Traffic Manager
 - [ ] TrafficScript Authenticator
 - [ ] User Authenticator

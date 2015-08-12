@@ -21,6 +21,12 @@ func resourcePool() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"bandwidth_class": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "",
+			},
+
 			"connection_max_connect_time": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
@@ -51,6 +57,12 @@ func resourcePool() *schema.Resource {
 				Default:  10,
 			},
 
+			"failure_pool": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "",
+			},
+
 			"load_balancing_algorithm": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -63,11 +75,47 @@ func resourcePool() *schema.Resource {
 				Default:  false,
 			},
 
+			"load_balancing_priority_nodes": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  1,
+			},
+
+			"max_connection_attempts": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  1,
+			},
+
+			"max_idle_connections_pernode": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  50,
+			},
+
+			"max_timed_out_connection_attempts": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  2,
+			},
+
 			"monitors": &schema.Schema{
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Set:      schema.HashString,
+			},
+
+			"node_close_with_rst": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+
+			"node_connection_attempts": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  3,
 			},
 
 			"nodes": &schema.Schema{
@@ -89,10 +137,34 @@ func resourcePool() *schema.Resource {
 				Default:  true,
 			},
 
+			"persistence_class": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "",
+			},
+
 			"tcp_nagle": &schema.Schema{
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
+			},
+
+			"transparent": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+
+			"udp_accept_from": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "dest_only",
+			},
+
+			"udp_accept_from_mask": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "",
 			},
 		},
 	}
@@ -122,18 +194,30 @@ func resourcePoolRead(d *schema.ResourceData, meta interface{}) error {
 		return fmt.Errorf("Error reading resource: %s", err)
 	}
 
+	d.Set("bandwidth_class", string(*r.Basic.BandwidthClass))
 	d.Set("connection_max_connect_time", int(*r.Connection.MaxConnectTime))
 	d.Set("connection_max_connections_per_node", int(*r.Connection.MaxConnectionsPerNode))
 	d.Set("connection_max_queue_size", int(*r.Connection.MaxQueueSize))
 	d.Set("connection_max_reply_time", int(*r.Connection.MaxReplyTime))
 	d.Set("connection_queue_timeout", int(*r.Connection.QueueTimeout))
+	d.Set("failure_pool", string(*r.Basic.FailurePool))
 	d.Set("load_balancing_algorithm", string(*r.LoadBalancing.Algorithm))
 	d.Set("load_balancing_priority_enabled", bool(*r.LoadBalancing.PriorityEnabled))
+	d.Set("load_balancing_priority_nodes", int(*r.LoadBalancing.PriorityNodes))
+	d.Set("max_connection_attempts", int(*r.Basic.MaxConnectionAttempts))
+	d.Set("max_idle_connections_pernode", int(*r.Basic.MaxIdleConnectionsPerNode))
+	d.Set("max_timed_out_connection_attempts", int(*r.Basic.MaxTimedOutConnectionAttempts))
 	d.Set("monitors", []string(*r.Basic.Monitors))
+	d.Set("node_close_with_rst", bool(*r.Basic.NodeCloseWithRST))
+	d.Set("node_connection_attempts", int(*r.Basic.NodeConnectionAttempts))
 	d.Set("nodes", nodesTableToNodes(*r.Basic.NodesTable))
 	d.Set("note", string(*r.Basic.Note))
 	d.Set("passive_monitoring", bool(*r.Basic.PassiveMonitoring))
+	d.Set("persistence_class", string(*r.Basic.PersistenceClass))
 	d.Set("tcp_nagle", bool(*r.TCP.Nagle))
+	d.Set("udp_accept_from", string(*r.UDP.AcceptFrom))
+	d.Set("udp_accept_from_mask_class", string(*r.UDP.AcceptFromMask))
+	d.Set("transparent", bool(*r.Basic.Transparent))
 
 	return nil
 }
@@ -163,18 +247,30 @@ func resourcePoolSet(d *schema.ResourceData, meta interface{}) error {
 	c := meta.(*providerConfig).client
 	r := stingray.NewPool(d.Get("name").(string))
 
+	setString(&r.Basic.BandwidthClass, d, "bandwidth_class")
 	setInt(&r.Connection.MaxConnectTime, d, "connection_max_connect_time")
 	setInt(&r.Connection.MaxConnectionsPerNode, d, "connection_max_connections_per_node")
 	setInt(&r.Connection.MaxQueueSize, d, "connection_max_queue_size")
 	setInt(&r.Connection.MaxReplyTime, d, "connection_max_reply_time")
 	setInt(&r.Connection.QueueTimeout, d, "connection_queue_timeout")
+	setString(&r.Basic.FailurePool, d, "failure_pool")
 	setString(&r.LoadBalancing.Algorithm, d, "load_balancing_algorithm")
 	setBool(&r.LoadBalancing.PriorityEnabled, d, "load_balancing_priority_enabled")
+	setInt(&r.LoadBalancing.PriorityNodes, d, "load_balancing_priority_nodes")
+	setInt(&r.Basic.MaxConnectionAttempts, d, "max_connection_attempts")
+	setInt(&r.Basic.MaxIdleConnectionsPerNode, d, "max_idle_connections_pernode")
+	setInt(&r.Basic.MaxTimedOutConnectionAttempts, d, "max_timed_out_connection_attempts")
 	setStringSet(&r.Basic.Monitors, d, "monitors")
+	setBool(&r.Basic.NodeCloseWithRST, d, "node_close_with_rst")
+	setInt(&r.Basic.NodeConnectionAttempts, d, "node_connection_attempts")
 	setNodesTable(&r.Basic.NodesTable, d, "nodes")
 	setString(&r.Basic.Note, d, "note")
 	setBool(&r.Basic.PassiveMonitoring, d, "passive_monitoring")
+	setString(&r.Basic.PersistenceClass, d, "persistence_class")
 	setBool(&r.TCP.Nagle, d, "tcp_nagle")
+	setBool(&r.Basic.Transparent, d, "transparent")
+	setString(&r.UDP.AcceptFrom, d, "udp_accept_from")
+	setString(&r.UDP.AcceptFromMask, d, "udp_accept_from_mask")
 
 	_, err := c.Set(r)
 	if err != nil {
