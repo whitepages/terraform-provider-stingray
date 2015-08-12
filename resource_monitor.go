@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/helper/schema"
 	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/whitepages/go-stingray"
 )
@@ -69,9 +70,8 @@ func resourceMonitor() *schema.Resource {
 				Default:  "",
 			},
 
-			// TODO: TypeSet might be better for script_arguments
 			"script_arguments": &schema.Schema{
-				Type:     schema.TypeList,
+				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
@@ -80,18 +80,17 @@ func resourceMonitor() *schema.Resource {
 							Optional: true,
 							Default:  true,
 						},
-
 						"name": &schema.Schema{
 							Type:     schema.TypeString,
 							Required: true,
 						},
-
 						"value": &schema.Schema{
 							Type:     schema.TypeString,
 							Required: true,
 						},
 					},
 				},
+				Set: hashScriptArguments,
 			},
 
 			"script_program": &schema.Schema{
@@ -183,12 +182,7 @@ func resourceMonitorRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("http_path", string(*r.HTTP.Path))
 	d.Set("http_status_regex", string(*r.HTTP.StatusRegex))
 	d.Set("note", string(*r.Basic.Note))
-	for i, arg := range *r.Script.Arguments {
-		prefix := fmt.Sprintf("script_arguments.%d", i)
-		d.Set(prefix+".description", arg.Description)
-		d.Set(prefix+".name", arg.Value)
-		d.Set(prefix+".value", arg.Value)
-	}
+	d.Set("script_arguments", flattenScriptArgumentsTable(*r.Script.Arguments))
 	d.Set("script_program", string(*r.Script.Program))
 	d.Set("tcp_close_string", string(*r.TCP.CloseString))
 	d.Set("tcp_max_response_len", int(*r.TCP.MaxResponseLen))
@@ -257,15 +251,45 @@ func resourceMonitorSet(d *schema.ResourceData, meta interface{}) error {
 }
 
 func setScriptArgumentsTable(target **stingray.ScriptArgumentsTable, d *schema.ResourceData, key string) {
-	t := stingray.ScriptArgumentsTable{}
-	count := d.Get(key + ".#").(int)
-	for i := 0; i < count; i++ {
-		a := stingray.ScriptArgument{}
-		prefix := fmt.Sprintf("%s.%d", key, i)
-		setString(&a.Description, d, prefix+".description")
-		a.Name = stingray.String(d.Get(prefix + ".name").(string))
-		a.Value = stingray.String(d.Get(prefix + ".value").(string))
-		t = append(t, a)
+	if _, ok := d.GetOk(key); ok {
+		table := d.Get(key).(*schema.Set).List()
+		*target, _ = expandScriptArgumentsTable(table)
 	}
-	*target = &t
+}
+
+func expandScriptArgumentsTable(configured []interface{}) (*stingray.ScriptArgumentsTable, error) {
+	table := make(stingray.ScriptArgumentsTable, 0, len(configured))
+
+	for _, raw := range configured {
+		data := raw.(map[string]interface{})
+
+		s := stingray.ScriptArgument{
+			Description: stingray.String(data["description"].(string)),
+			Name:        stingray.String(data["name"].(string)),
+			Value:       stingray.String(data["value"].(string)),
+		}
+
+		table = append(table, s)
+	}
+
+	return &table, nil
+}
+
+func flattenScriptArgumentsTable(list stingray.ScriptArgumentsTable) []map[string]interface{} {
+	result := make([]map[string]interface{}, 0, len(list))
+	for _, i := range list {
+		s := map[string]interface{}{
+			"description": *i.Description,
+			"name":        *i.Name,
+			"value":       *i.Value,
+		}
+		result = append(result, s)
+	}
+
+	return result
+}
+
+func hashScriptArguments(v interface{}) int {
+	m := v.(map[string]interface{})
+	return hashcode.String(m["name"].(string))
 }
