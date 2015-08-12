@@ -80,12 +80,10 @@ func resourceMonitor() *schema.Resource {
 							Optional: true,
 							Default:  true,
 						},
-
 						"name": &schema.Schema{
 							Type:     schema.TypeString,
 							Required: true,
 						},
-
 						"value": &schema.Schema{
 							Type:     schema.TypeString,
 							Required: true,
