@@ -1,4 +1,4 @@
-## (unreleased)
+## 2.6.0
 
 * Support more settings
 * stingray_monitor/script_arguments is now a set
