@@ -91,7 +91,7 @@ func resourceMonitor() *schema.Resource {
 			"rtsp_path": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "",
+				Default:  "/",
 			},
 
 			"rtsp_status_regex": &schema.Schema{
