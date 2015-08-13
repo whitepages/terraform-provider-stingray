@@ -84,7 +84,7 @@ func resourcePool() *schema.Resource {
 			"max_connection_attempts": &schema.Schema{
 				Type:     schema.TypeInt,
 				Optional: true,
-				Default:  1,
+				Default:  0,
 			},
 
 			"max_idle_connections_pernode": &schema.Schema{
