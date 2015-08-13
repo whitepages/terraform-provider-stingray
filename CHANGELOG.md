@@ -1,3 +1,7 @@
+## (unreleased)
+
+* Fix default values
+
 ## 2.6.0
 
 * Support more settings
