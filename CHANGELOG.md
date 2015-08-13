@@ -1,3 +1,8 @@
+## (unreleased)
+
+* Support more settings
+* stingray_monitor/script_arguments is now a set
+
 ## 2.5.4
 
 * Use setBool everywhere
