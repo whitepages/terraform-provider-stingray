@@ -1,4 +1,4 @@
-## (unreleased)
+## 2.6.1
 
 * Fix default values
 
