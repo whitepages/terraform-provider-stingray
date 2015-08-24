@@ -309,7 +309,7 @@ func resourceMonitorSet(d *schema.ResourceData, meta interface{}) error {
 	setString(&r.Script.Program, d, "script_program")
 	setString(&r.SIP.BodyRegex, d, "sip_body_regex")
 	setString(&r.SIP.StatusRegex, d, "sip_status_regex")
-	setString(&r.SIP.Transport, d, "sip_transports")
+	setString(&r.SIP.Transport, d, "sip_transport")
 	setString(&r.TCP.CloseString, d, "tcp_close_string")
 	setInt(&r.TCP.MaxResponseLen, d, "tcp_max_response_len")
 	setString(&r.TCP.ResponseRegex, d, "tcp_response_regex")
