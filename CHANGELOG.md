@@ -1,4 +1,4 @@
-## (unreleased)
+## 2.6.2
 
 * Fix attribute name for sip_transport
 
