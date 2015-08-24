@@ -1,3 +1,7 @@
+## (unreleased)
+
+* Fix attribute name for sip_transport
+
 ## 2.6.1
 
 * Fix default values
