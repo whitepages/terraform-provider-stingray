@@ -1,3 +1,7 @@
+## (unreleased)
+
+* Update godeps for go-stingray 1.2.0
+
 ## 2.6.2
 
 * Fix attribute name for sip_transport
