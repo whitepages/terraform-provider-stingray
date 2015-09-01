@@ -23,8 +23,11 @@ type TrafficIPGroupProperties struct {
 		Mode                         *string         `json:"mode,omitempty"`
 		Multicast                    *string         `json:"multicast,omitempty"`
 		Note                         *string         `json:"note,omitempty"`
+		RHIBGPMetricBase             *int            `json:"rhi_bgp_metric_base,omitempty"`
+		RHIBGPPassiveMetricOffset    *int            `json:"rhi_bgp_passive_metric_offset,omitempty"`
 		RHIOSPFV2MetricBase          *int            `json:"rhi_ospfv2_metric_base,omitempty"`
 		RHIOSPFV2PassiveMetricOffset *int            `json:"rhi_ospfv2_passive_metric_offset,omitempty"`
+		RHIProtocols                 *string         `json:"rhi_protocols,omitempty"`
 		Slaves                       *[]string       `json:"slaves,omitempty"`
 	} `json:"basic"`
 }

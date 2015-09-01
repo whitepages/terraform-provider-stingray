@@ -17,11 +17,12 @@ type VirtualServerProperties struct {
 		Profile *ProfileTable `json:"profile,omitempty"`
 	} `json:"aptimizer"`
 	Basic struct {
-		AddClusterIP       *bool   `json:"add_cluster_ip,omitempty"`
-		AddXForwardedFor   *bool   `json:"add_x_forwarded_for,omitempty"`
-		AddXForwardedProto *bool   `json:"add_x_forwarded_proto,omitempty"`
-		BandwidthClass     *string `json:"bandwidth_class,omitempty"`
-		CloseWithRST       *bool   `json:"close_with_rst,omitempty"`
+		AddClusterIP             *bool   `json:"add_cluster_ip,omitempty"`
+		AddXForwardedFor         *bool   `json:"add_x_forwarded_for,omitempty"`
+		AddXForwardedProto       *bool   `json:"add_x_forwarded_proto,omitempty"`
+		AutodetectUpgradeHeaders *bool   `json:"autodetect_upgrade_headers,omitempty"`
+		BandwidthClass           *string `json:"bandwidth_class,omitempty"`
+		CloseWithRST             *bool   `json:"close_with_rst,omitempty"`
 		// To disable a rule, add a / before the name (e.g.
 		// "example" -> "/example")
 		CompletionRules      *[]string `json:"completionrules,omitempty"`
@@ -43,6 +44,8 @@ type VirtualServerProperties struct {
 		SoNagle              *bool     `json:"so_nagle,omitempty"`
 		SSLClientCertHeaders *string   `json:"ssl_client_cert_headers,omitempty"`
 		SSLDecrypt           *bool     `json:"ssl_decrypt,omitempty"`
+		SSLHonorFallbackSCSV *string   `json:"ssl_honor_fallback_scsv,omitempty"`
+		Transparent          *bool     `json:"transparent,omitempty"`
 	} `json:"basic"`
 	Connection struct {
 		Keepalive              *bool   `json:"keepalive,omitempty"`
@@ -63,6 +66,13 @@ type VirtualServerProperties struct {
 		PathReplace *string `json:"path_replace,omitempty"`
 		Secure      *string `json:"secure,omitempty"`
 	} `json:"cookie"`
+	DNS struct {
+		EDNSUDPSize *int      `json:"edns_udpsize,omitempty"`
+		MaxUDPSize  *int      `json:"max_udpsize,omitempty"`
+		RRSetOrder  *string   `json:"rrset_order,omitempty"`
+		Verbose     *bool     `json:"verbose,omitempty"`
+		Zones       *[]string `json:"zones,omitempty"`
+	} `json:"dns"`
 	FTP struct {
 		DataSourcePort    *int  `json:"data_source_port,omitempty"`
 		ForceClientSecure *bool `json:"force_client_secure,omitempty"`
@@ -73,6 +83,7 @@ type VirtualServerProperties struct {
 	Gzip struct {
 		CompressLevel *int      `json:"compress_level,omitempty"`
 		Enabled       *bool     `json:"enabled,omitempty"`
+		ETagRewrite   *string   `json:"etag_rewrite,omitempty"`
 		IncludeMIME   *[]string `json:"include_mime,omitempty"`
 		MaxSize       *int      `json:"max_size,omitempty"`
 		MinSize       *int      `json:"min_size,omitempty"`
@@ -132,6 +143,7 @@ type VirtualServerProperties struct {
 	SSL struct {
 		AddHTTPHeaders         *bool                       `json:"add_http_headers,omitempty"`
 		ClientCertCAs          *[]string                   `json:"client_cert_cas,omitempty"`
+		EllipticCurves         *[]string                   `json:"elliptic_curves,omitempty"`
 		IssuedCertsNeverExpire *[]string                   `json:"issued_certs_never_expire,omitempty"`
 		OCSPEnable             *bool                       `json:"ocsp_enable,omitempty"`
 		OCSPIssuers            *OCSPIssuersTable           `json:"ocsp_issuers,omitempty"`
