@@ -13,6 +13,7 @@ type Pool struct {
 
 type PoolProperties struct {
 	AutoScaling struct {
+		AddNodeDelayTime *int      `json:"addnode_delaytime,omitempty"`
 		CloudCredentials *string   `json:"cloud_credentials,omitempty"`
 		Cluster          *string   `json:"cluster,omitempty"`
 		DataCenter       *string   `json:"data_center,omitempty"`
@@ -44,6 +45,8 @@ type PoolProperties struct {
 		Monitors                      *[]string   `json:"monitors,omitempty"`
 		NodeCloseWithRST              *bool       `json:"node_close_with_rst,omitempty"`
 		NodeConnectionAttempts        *int        `json:"node_connection_attempts,omitempty"`
+		NodeDeleteBehavior            *string     `json:"node_delete_behavior,omitempty"`
+		NodeDrainToDeleteTimeout      *int        `json:"node_drain_to_delete_timeout,omitempty"`
 		NodesTable                    *NodesTable `json:"nodes_table,omitempty"`
 		PassiveMonitoring             *bool       `json:"passive_monitoring,omitempty"`
 		PersistenceClass              *string     `json:"persistence_class,omitempty"`
@@ -90,19 +93,21 @@ type PoolProperties struct {
 		SendStartTLS *bool `json:"send_starttls,omitempty"`
 	} `json:"smtp"`
 	SSL struct {
-		ClientAuth          *bool   `json:"client_auth,omitempty"`
-		Enable              *bool   `json:"enable,omitempty"`
-		Enhance             *bool   `json:"enhance,omitempty"`
-		SendCloseAlerts     *bool   `json:"send_close_alerts,omitempty"`
-		ServerName          *bool   `json:"server_name,omitempty"`
-		SignatureAlgorithms *string `json:"signature_algorithms,omitempty"`
-		SSLCiphers          *string `json:"ssl_ciphers,omitempty"`
-		SSLSupportSSL2      *string `json:"ssl_support_ssl2,omitempty"`
-		SSLSupportSSL3      *string `json:"ssl_support_ssl3,omitempty"`
-		SSLSupportTLS1      *string `json:"ssl_support_tls1,omitempty"`
-		SSLSupportTLS11     *string `json:"ssl_support_tls1_1,omitempty"`
-		SSLSupportTLS12     *string `json:"ssl_support_tls1_2,omitempty"`
-		StrictVerify        *bool   `json:"strict_verify,omitempty"`
+		ClientAuth          *bool     `json:"client_auth,omitempty"`
+		CommonNameMatch     *[]string `json:"common_name_match,omitempty"`
+		EllipticCurves      *[]string `json:"elliptic_curves,omitempty"`
+		Enable              *bool     `json:"enable,omitempty"`
+		Enhance             *bool     `json:"enhance,omitempty"`
+		SendCloseAlerts     *bool     `json:"send_close_alerts,omitempty"`
+		ServerName          *bool     `json:"server_name,omitempty"`
+		SignatureAlgorithms *string   `json:"signature_algorithms,omitempty"`
+		SSLCiphers          *string   `json:"ssl_ciphers,omitempty"`
+		SSLSupportSSL2      *string   `json:"ssl_support_ssl2,omitempty"`
+		SSLSupportSSL3      *string   `json:"ssl_support_ssl3,omitempty"`
+		SSLSupportTLS1      *string   `json:"ssl_support_tls1,omitempty"`
+		SSLSupportTLS11     *string   `json:"ssl_support_tls1_1,omitempty"`
+		SSLSupportTLS12     *string   `json:"ssl_support_tls1_2,omitempty"`
+		StrictVerify        *bool     `json:"strict_verify,omitempty"`
 	} `json:"ssl"`
 	TCP struct {
 		Nagle *bool `json:"nagle,omitempty"`
