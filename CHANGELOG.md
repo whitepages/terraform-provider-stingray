@@ -1,4 +1,4 @@
-## (unreleased)
+## 2.6.3
 
 * Update godeps for go-stingray 1.2.0
 
