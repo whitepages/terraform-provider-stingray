@@ -4,7 +4,7 @@ import (
 	"crypto/tls"
 	"net/http"
 
-	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/whitepages/go-stingray"
+	"github.com/whitepages/go-stingray"
 )
 
 // Config is the configuration structure used to instantiate the Stingray

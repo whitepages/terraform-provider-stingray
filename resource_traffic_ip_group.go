@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/hashicorp/terraform/helper/schema"
-	"github.com/whitepages/terraform-provider-stingray/Godeps/_workspace/src/github.com/whitepages/go-stingray"
+	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/whitepages/go-stingray"
 )
 
 func resourceTrafficIPGroup() *schema.Resource {
