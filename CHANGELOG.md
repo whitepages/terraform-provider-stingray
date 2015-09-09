@@ -1,3 +1,8 @@
+## (unreleased)
+
+* Convert to go 1.5 vendor experiment
+* Update godeps for terraform v0.6.3
+
 ## 2.6.3
 
 * Update godeps for go-stingray 1.2.0
