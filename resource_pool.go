@@ -57,6 +57,25 @@ func resourcePool() *schema.Resource {
 				Default:  10,
 			},
 
+			"dns_autoscale_enabled": &schema.Schema{
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  false,
+			},
+
+			"dns_autoscale_hostnames": &schema.Schema{
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
+
+			"dns_autoscale_port": &schema.Schema{
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  80,
+			},
+
 			"failure_pool": &schema.Schema{
 				Type:     schema.TypeString,
 				Optional: true,
@@ -200,6 +219,9 @@ func resourcePoolRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("connection_max_queue_size", int(*r.Connection.MaxQueueSize))
 	d.Set("connection_max_reply_time", int(*r.Connection.MaxReplyTime))
 	d.Set("connection_queue_timeout", int(*r.Connection.QueueTimeout))
+	d.Set("dns_autoscale_enabled", bool(*r.DNSAutoscale.Enabled))
+	d.Set("dns_autoscale_hostnames", []string(*r.DNSAutoscale.Hostnames))
+	d.Set("dns_autoscale_port", int(*r.DNSAutoscale.Port))
 	d.Set("failure_pool", string(*r.Basic.FailurePool))
 	d.Set("load_balancing_algorithm", string(*r.LoadBalancing.Algorithm))
 	d.Set("load_balancing_priority_enabled", bool(*r.LoadBalancing.PriorityEnabled))
@@ -253,6 +275,9 @@ func resourcePoolSet(d *schema.ResourceData, meta interface{}) error {
 	setInt(&r.Connection.MaxQueueSize, d, "connection_max_queue_size")
 	setInt(&r.Connection.MaxReplyTime, d, "connection_max_reply_time")
 	setInt(&r.Connection.QueueTimeout, d, "connection_queue_timeout")
+	setBool(&r.DNSAutoscale.Enabled, d, "dns_autoscale_enabled")
+	setStringSet(&r.DNSAutoscale.Hostnames, d, "dns_autoscale_hostnames")
+	setInt(&r.DNSAutoscale.Port, d, "dns_autoscale_port")
 	setString(&r.Basic.FailurePool, d, "failure_pool")
 	setString(&r.LoadBalancing.Algorithm, d, "load_balancing_algorithm")
 	setBool(&r.LoadBalancing.PriorityEnabled, d, "load_balancing_priority_enabled")
