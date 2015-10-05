@@ -60,10 +60,6 @@ type PoolProperties struct {
 		MaxReplyTime          *int `json:"max_reply_time,omitempty"`
 		QueueTimeout          *int `json:"queue_timeout,omitempty"`
 	} `json:"connection"`
-	DNS struct {
-		EDNSUDPSize *int `json:"edns_udpsize,omitempty"`
-		MaxUDPSize  *int `json:"max_udpsize,omitempty"`
-	} `json:"dns"`
 	DNSAutoscale struct {
 		Enabled   *bool     `json:"enabled,omitempty"`
 		Hostnames *[]string `json:"hostnames,omitempty"`
