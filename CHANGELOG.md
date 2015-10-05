@@ -1,3 +1,6 @@
+* stingray_pool: Add dns_autoscale section
+* Update godeps for go-stingray v1.2.1
+
 ## 2.6.4
 
 * Convert to go 1.5 vendor experiment
