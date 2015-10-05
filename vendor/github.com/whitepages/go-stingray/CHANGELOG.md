@@ -1,3 +1,7 @@
+## 1.2.1
+
+* Remove dns section from pool
+
 ## 1.2.0
 
 * Add missing DNS section to the virtual server resource
