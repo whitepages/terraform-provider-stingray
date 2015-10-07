@@ -1,3 +1,5 @@
+## (unreleased)
+
 * stingray_pool: Make nodes a computed argument (to support DNS autoscaling)
 
 ## 2.7.0
