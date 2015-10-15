@@ -85,7 +85,7 @@ func (x *hclLex) Lex(yylval *hclSymType) int {
 		case '-':
 			return MINUS
 		case ',':
-			return x.lexComma()
+			return COMMA
 		case '=':
 			return EQUAL
 		case '[':
@@ -125,7 +125,14 @@ func (x *hclLex) consumeComment(c rune) bool {
 		c = x.next()
 		if c == lexEOF {
 			x.backup()
-			return true
+			if single {
+				// Single line comments can end with an EOF
+				return true
+			}
+
+			// Multi-line comments must end with a */
+			x.createErr(fmt.Sprintf("end of multi-line comment expected, got EOF"))
+			return false
 		}
 
 		// Single line comments continue until a '\n'
@@ -149,40 +156,14 @@ func (x *hclLex) consumeComment(c rune) bool {
 		case '*':
 			c = x.next()
 			if c == '/' {
-				nested--
+				return true
 			} else {
 				x.backup()
 			}
 		default:
 			// Continue
 		}
-
-		// If we're done with the comment, return!
-		if nested == 0 {
-			return true
-		}
 	}
-}
-
-// lexComma reads the comma
-func (x *hclLex) lexComma() int {
-	for {
-		c := x.peek()
-
-		// Consume space
-		if unicode.IsSpace(c) {
-			x.next()
-			continue
-		}
-
-		if c == ']' {
-			return COMMAEND
-		}
-
-		break
-	}
-
-	return COMMA
 }
 
 // lexId lexes an identifier

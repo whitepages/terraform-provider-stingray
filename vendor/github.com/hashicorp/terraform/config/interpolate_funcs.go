@@ -2,6 +2,7 @@ package config
 
 import (
 	"bytes"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -19,15 +20,35 @@ var Funcs map[string]ast.Function
 
 func init() {
 	Funcs = map[string]ast.Function{
-		"concat":     interpolationFuncConcat(),
-		"element":    interpolationFuncElement(),
-		"file":       interpolationFuncFile(),
-		"format":     interpolationFuncFormat(),
-		"formatlist": interpolationFuncFormatList(),
-		"join":       interpolationFuncJoin(),
-		"length":     interpolationFuncLength(),
-		"replace":    interpolationFuncReplace(),
-		"split":      interpolationFuncSplit(),
+		"compact":      interpolationFuncCompact(),
+		"concat":       interpolationFuncConcat(),
+		"element":      interpolationFuncElement(),
+		"file":         interpolationFuncFile(),
+		"format":       interpolationFuncFormat(),
+		"formatlist":   interpolationFuncFormatList(),
+		"index":        interpolationFuncIndex(),
+		"join":         interpolationFuncJoin(),
+		"length":       interpolationFuncLength(),
+		"replace":      interpolationFuncReplace(),
+		"split":        interpolationFuncSplit(),
+		"base64encode": interpolationFuncBase64Encode(),
+		"base64decode": interpolationFuncBase64Decode(),
+	}
+}
+
+// interpolationFuncCompact strips a list of multi-variable values
+// (e.g. as returned by "split") of any empty strings.
+func interpolationFuncCompact() ast.Function {
+	return ast.Function{
+		ArgTypes:   []ast.Type{ast.TypeString},
+		ReturnType: ast.TypeString,
+		Variadic:   false,
+		Callback: func(args []interface{}) (interface{}, error) {
+			if !IsStringList(args[0].(string)) {
+				return args[0].(string), nil
+			}
+			return StringList(args[0].(string)).Compact().String(), nil
+		},
 	}
 }
 
@@ -174,6 +195,25 @@ func interpolationFuncFormatList() ast.Function {
 				list[i] = fmt.Sprintf(format, fmtargs...)
 			}
 			return NewStringList(list).String(), nil
+		},
+	}
+}
+
+// interpolationFuncIndex implements the "index" function that allows one to
+// find the index of a specific element in a list
+func interpolationFuncIndex() ast.Function {
+	return ast.Function{
+		ArgTypes:   []ast.Type{ast.TypeString, ast.TypeString},
+		ReturnType: ast.TypeInt,
+		Callback: func(args []interface{}) (interface{}, error) {
+			haystack := StringList(args[0].(string)).Slice()
+			needle := args[1].(string)
+			for index, element := range haystack {
+				if needle == element {
+					return index, nil
+				}
+			}
+			return nil, fmt.Errorf("Could not find '%s' in '%s'", needle, haystack)
 		},
 	}
 }
@@ -369,6 +409,36 @@ func interpolationFuncValues(vs map[string]ast.Variable) ast.Function {
 			}
 
 			return NewStringList(vals).String(), nil
+		},
+	}
+}
+
+// interpolationFuncBase64Encode implements the "base64encode" function that
+// allows Base64 encoding.
+func interpolationFuncBase64Encode() ast.Function {
+	return ast.Function{
+		ArgTypes:   []ast.Type{ast.TypeString},
+		ReturnType: ast.TypeString,
+		Callback: func(args []interface{}) (interface{}, error) {
+			s := args[0].(string)
+			return base64.StdEncoding.EncodeToString([]byte(s)), nil
+		},
+	}
+}
+
+// interpolationFuncBase64Decode implements the "base64decode" function that
+// allows Base64 decoding.
+func interpolationFuncBase64Decode() ast.Function {
+	return ast.Function{
+		ArgTypes:   []ast.Type{ast.TypeString},
+		ReturnType: ast.TypeString,
+		Callback: func(args []interface{}) (interface{}, error) {
+			s := args[0].(string)
+			sDec, err := base64.StdEncoding.DecodeString(s)
+			if err != nil {
+				return "", fmt.Errorf("failed to decode base64 data '%s'", s)
+			}
+			return string(sDec), nil
 		},
 	}
 }
