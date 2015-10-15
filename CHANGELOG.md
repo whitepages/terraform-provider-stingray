@@ -1,4 +1,4 @@
-## (unreleased)
+## 2.7.2
 
 * Update godeps for terraform v0.6.3
 
