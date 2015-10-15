@@ -1,3 +1,7 @@
+## (unreleased)
+
+* Update godeps for terraform v0.6.3
+
 ## 2.7.1
 
 * stingray_pool: Make nodes a computed argument (to support DNS autoscaling)
