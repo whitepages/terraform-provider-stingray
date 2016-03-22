@@ -17,48 +17,48 @@ func Provider() terraform.ResourceProvider {
 			"url": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("STINGRAY_URL", nil),
+				DefaultFunc: schema.EnvDefaultFunc("VTM_URL", nil),
 			},
 
 			"username": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("STINGRAY_USERNAME", nil),
+				DefaultFunc: schema.EnvDefaultFunc("VTM_USERNAME", nil),
 			},
 
 			"password": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
-				DefaultFunc: schema.EnvDefaultFunc("STINGRAY_PASSWORD", nil),
+				DefaultFunc: schema.EnvDefaultFunc("VTM_PASSWORD", nil),
 			},
 
 			"valid_networks": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("STINGRAY_VALID_NETWORKS", ""),
+				DefaultFunc: schema.EnvDefaultFunc("VTM_VALID_NETWORKS", ""),
 			},
 
 			"verify_ssl": &schema.Schema{
 				Type:        schema.TypeBool,
 				Optional:    true,
-				DefaultFunc: schema.EnvDefaultFunc("STINGRAY_VERIFY_SSL", true),
+				DefaultFunc: schema.EnvDefaultFunc("VTM_VERIFY_SSL", true),
 			},
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"stingray_action_program":        resourceActionProgram(),
-			"stingray_extra_file":            resourceExtraFile(),
-			"stingray_license_key":           resourceLicenseKey(),
-			"stingray_monitor_script":        resourceMonitorScript(),
-			"stingray_monitor":               resourceMonitor(),
-			"stingray_pool":                  resourcePool(),
-			"stingray_rate":                  resourceRate(),
-			"stingray_rule":                  resourceRule(),
-			"stingray_service_level_monitor": resourceServiceLevelMonitor(),
-			"stingray_ssl_cas":               resourceSSLCAs(),
-			"stingray_ssl_server_key":        resourceSSLServerKey(),
-			"stingray_traffic_ip_group":      resourceTrafficIPGroup(),
-			"stingray_virtual_server":        resourceVirtualServer(),
+			"vtm_action_program":        resourceActionProgram(),
+			"vtm_extra_file":            resourceExtraFile(),
+			"vtm_license_key":           resourceLicenseKey(),
+			"vtm_monitor_script":        resourceMonitorScript(),
+			"vtm_monitor":               resourceMonitor(),
+			"vtm_pool":                  resourcePool(),
+			"vtm_rate":                  resourceRate(),
+			"vtm_rule":                  resourceRule(),
+			"vtm_service_level_monitor": resourceServiceLevelMonitor(),
+			"vtm_ssl_cas":               resourceSSLCAs(),
+			"vtm_ssl_server_key":        resourceSSLServerKey(),
+			"vtm_traffic_ip_group":      resourceTrafficIPGroup(),
+			"vtm_virtual_server":        resourceVirtualServer(),
 		},
 
 		ConfigureFunc: providerConfigure,

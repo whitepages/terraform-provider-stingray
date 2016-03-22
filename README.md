@@ -1,15 +1,15 @@
-# Stingray Terraform Provider
+# VTM Terraform Provider
 
-[![GoDoc](https://godoc.org/github.com/whitepages/terraform-provider-stingray?status.svg)](https://godoc.org/github.com/whitepages/terraform-provider-stingray)
-[![Build Status](https://secure.travis-ci.org/whitepages/terraform-provider-stingray.png)](http://travis-ci.org/whitepages/terraform-provider-stingray)
+[![GoDoc](https://godoc.org/github.com/whitepages/terraform-provider-vtm?status.svg)](https://godoc.org/github.com/whitepages/terraform-provider-VTM)
+[![Build Status](https://secure.travis-ci.org/whitepages/terraform-provider-vtm.png)](http://travis-ci.org/whitepages/terraform-provider-VTM)
 
-The Stingray Terraform provider is used to interact with the Stingray
+The VTM Terraform provider is used to interact with the VTM
 load balancer.
 
 ## Example usage
 
 ```
-provider "stingray" {
+provider "vtm" {
 	url = "https://example:9070"
 	username = "username"
 	password = "password"
@@ -18,7 +18,7 @@ provider "stingray" {
 
 ## Argument Reference
 
-* `url` - The protocol, host name, and port for the Stingray REST API
+* `url` - The protocol, host name, and port for the VTM REST API
 * `username` - The username for authenticating against the API
 * `password` - The password for authenticating against the API
 * `valid_networks` - A comma separated list of valid traffic IP
@@ -26,8 +26,8 @@ provider "stingray" {
 * `verify_ssl` - Perform SSL verification, default is true
 
 The provider can also be configured through the environmental
-variables `STINGRAY_URL`, `STINGRAY_USERNAME`, `STINGRAY_PASSWORD`,
-`STINGRAY_VALID_NETWORKS`, and `STINGRAY_VERIFY_SSL`.
+variables `VTM_URL`, `VTM_USERNAME`, `VTM_PASSWORD`,
+`VTM_VALID_NETWORKS`, and `VTM_VERIFY_SSL`.
 
 ## Supported Resources
 
@@ -59,7 +59,7 @@ fully supported.
 - [x] **Rule**
 - [x] **SLM Class**
 - [ ] SSL Client Key Pair
-- [x] **SSL Key Pair** 
+- [x] **SSL Key Pair**
 - [x] **SSL Trusted Certificate**
 - [ ] Security Settings
 - [ ] Session Persistence Class
@@ -72,15 +72,15 @@ fully supported.
 
 ## Default values
 
-All default values are taken from the Stingray REST API documentation,
+All default values are taken from the VTM REST API documentation,
 with the following exceptions:
 
-`stingray_virtual_server`
-- `enabled`: provider default is true; Stingray default is false
-- `listen_on_any`: provider default is false; Stingray default is true
+`vtm_virtual_server`
+- `enabled`: provider default is true; VTM default is false
+- `listen_on_any`: provider default is false; VTM default is true
 
 ## Building
 
 Dependencies are vendored (using `godep save -r`). Running `go
-install` will build and install the `terraform-provider-stingray`
+install` will build and install the `terraform-provider-vtm`
 binary.
